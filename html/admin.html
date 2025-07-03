@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administrar Ventas</title>
+  <link rel="stylesheet" href="../css/estilos-admin.css">
+</head>
+<body>
+  <header>
+    <h1>TACOS CARISMMA</h1>
+  </header>
+
+  <nav>
+    <a href="menu.html">Menú</a>
+    <a href="index.html">Orden</a>
+    <a href="admin.html">Administrar</a>
+  </nav>
+
+  <main>
+    <section id="busquedaVentas">
+      <h2>Ventas por fecha</h2>
+
+      <div class="form-group">
+        <label for="selectorFecha">Selecciona una fecha:</label>
+        <input type="date" id="selectorFecha">
+      </div>
+
+      <button id="btnBuscarVent">Buscar Ventas</button>
+    </section>
+
+    <section id="resultadoVentas">
+      <div id="resultadoVenta"></div>
+      <ol id="listaVentas"></ol>
+    </section>
+  </main>
+
+  <script type="module" src="../js/appAdm.js"></script>
+</body>
+</html>
