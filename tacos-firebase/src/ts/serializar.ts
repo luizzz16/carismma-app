@@ -1,0 +1,44 @@
+import { Orden } from './orden';
+  export function serializarOrden(orden: Orden): void {
+    const key = Orden.formatDate(orden.fecha);
+    const rawData = localStorage.getItem(key);
+
+    let fileData: { orders: any[] } = { orders: [] };
+
+    if (rawData) {
+      try {
+        const parsed = JSON.parse(rawData);
+        if (Array.isArray(parsed.orders)) {
+          fileData.orders = parsed.orders;
+        }
+      } catch (error) {
+        console.warn('No se pudo parsear el localStorage. Se sobrescribirá.');
+      }
+    }
+
+    // Convertir a JSON plano
+    const ordenJson = JSON.parse(JSON.stringify(orden));
+
+    // Evitar duplicados (opcional pero recomendable)
+    fileData.orders.push(ordenJson);
+
+    localStorage.setItem(key, JSON.stringify(fileData));
+  }
+
+
+  export function deserializarOrden(date: Date): Orden[] {
+    const key = Orden.formatDate(date);
+    const rawData = localStorage.getItem(key);
+
+    if (!rawData) return [];
+
+    try {
+      const parsed = JSON.parse(rawData);
+      if (Array.isArray(parsed.orders)) {
+        return parsed.orders.map((obj: any) => Orden.fromJSON(obj));
+      }
+      return [];
+    } catch (error) {
+      return [];
+    }
+  }
