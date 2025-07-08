@@ -1,31 +1,4 @@
 import { Orden } from './orden.js';
-
-// export function serializarOrden(orden: Orden): void {
-//     const key = Orden.formatDate(orden.fecha);
-//     const rawData = localStorage.getItem(key);
-  
-//     let fileData: { orders: Orden[] } = { orders: [] };
-  
-//     if (rawData) {
-//       try {
-//         const parsed = JSON.parse(rawData);
-//         // Merge existing orders if the structure is valid
-//         if (Array.isArray(parsed.orders)) {
-//           fileData.orders = parsed.orders;
-//         }
-//       } catch (error) {
-//         console.warn('Could not parse existing data in localStorage. Overwriting.');
-//       }
-//     }
-  
-//     // Add the new order 
-//     fileData.orders.push(orden);
-  
-//     console.log(fileData);
-//     // Save back to localStorage
-//     localStorage.setItem(key, JSON.stringify(fileData));
-//   }
-
   export function serializarOrden(orden: Orden): void {
     const key = Orden.formatDate(orden.fecha);
     const rawData = localStorage.getItem(key);
@@ -69,28 +42,3 @@ import { Orden } from './orden.js';
       return [];
     }
   }
-
-  // export function deserializarOrden(date: Date): Orden[] {
-  //   const key = Orden.formatDate(date);
-  //   const rawData = localStorage.getItem(key);
-  
-  //   let fileData: { orders: Orden[] } = { orders: [] };
-  
-  //   if (rawData) {
-  //     try {
-  //       const parsed = JSON.parse(rawData);
-
-  //       if (Array.isArray(parsed.orders)) {
-  //         fileData.orders = parsed.orders;
-  //         return fileData.orders;
-  //       } else {
-  //           return [];
-  //       }
-  //     } catch (error) {
-  //       return [];
-  //     }
-  //   } else {
-  //       return [];
-  //   }
-  // }
-

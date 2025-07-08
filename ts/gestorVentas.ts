@@ -1,6 +1,8 @@
 import { serializarOrden } from "./serializar.js";
 import { Orden } from "./orden.js";
 import { deserializarOrden } from "./serializar.js";
+import { getFirestore, collection, addDoc, onSnapshot } from "firebase/firestore";
+import {db} from "./app.js";
 
 export class GestorVentas {
   private _ventasPorDia: Record<string, Orden[]> = {};
@@ -18,6 +20,7 @@ export class GestorVentas {
 
   // Y guarda solo esa nueva orden en el localStorage
   serializarOrden(orden);
+  this.guardarEnFirestore(orden);
 }
 
 
@@ -25,19 +28,14 @@ export class GestorVentas {
     return deserializarOrden(fecha);
   }
 
-  // mostrarVentasPorFecha(fecha: Date) {
-  //   const fechaStr = fecha.toISOString().split('T')[0]; // Formato 'YYYY-MM-DD'
-  //   const ordenes = this.obtenerVentasPorFecha(fecha);
-    
-  //   if (ordenes.length === 0) {
-  //     console.log(`No hay ventas para la fecha ${fechaStr}`);
-  //     return;
-  //   }
-
-  //   console.log(`Ventas para la fecha ${fechaStr}:`);
-  //   ordenes.forEach(orden => {
-  //     console.log(`Mesa: ${orden.noMesa}, Total: ${orden.getResumenConsumoOrd()}`);
-  //   });
-  // }
+  async guardarEnFirestore(orden: Orden) {
+    try {
+      const ordenObj = orden.toJSON ? orden.toJSON() : JSON.parse(JSON.stringify(orden));
+      await addDoc(collection(db, "ordenes"), ordenObj);
+      console.log("Orden guardada en Firestore");
+    } catch (e) {
+      console.error("Error al guardar en Firestore:", e);
+    }
+  }
 
 }

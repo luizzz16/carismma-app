@@ -153,7 +153,7 @@ export class Ordenes {
     ////////////////////////////////////////////////////////////////////////////////////
     limpiarCampos() {
         const inputs = document.querySelectorAll('input[type="number"]');
-        inputs.forEach(input => input.value = '0');
+        inputs.forEach(input => input.value = '');
     }
     getSafeValue(input) {
         return isNaN(input.valueAsNumber) ? 0 : input.valueAsNumber;

@@ -177,7 +177,7 @@ export class Ordenes {
     ////////////////////////////////////////////////////////////////////////////////////
     private limpiarCampos(): void {
     const inputs = document.querySelectorAll<HTMLInputElement>('input[type="number"]');
-    inputs.forEach(input => input.value = '0');
+    inputs.forEach(input => input.value = '');
     }
 
     private getSafeValue(input: HTMLInputElement): number {

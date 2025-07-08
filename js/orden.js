@@ -84,4 +84,11 @@ export class Orden {
         orden.estadoOrden = obj._estadoOrden ?? false;
         return orden;
     }
+    toJSON() {
+        return {
+            _mesa: this._mesa,
+            _fecha: this._fecha.toISOString(),
+            _subOrdenes: this._subOrdenes,
+        };
+    }
 }
