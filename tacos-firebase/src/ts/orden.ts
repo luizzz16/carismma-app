@@ -1,6 +1,7 @@
 import {SubOrden} from "./subOrden";
 
 export class Orden {
+  public id: string | null = null;
   private _subOrdenes: SubOrden[];
   private _mesa: number;
   private _fecha: Date;
@@ -99,27 +100,50 @@ export class Orden {
   }
 
 
+  // public static fromJSON(obj: any): Orden {
+  //   const fecha = new Date(obj._fecha);
+  //   const orden = new Orden(obj._mesa, fecha);
+
+  //   // Reconstruir subórdenes (si es que existen)
+  //   orden.subOrdenes = obj.subOrdenes.map((s: any) =>
+  //     SubOrden.fromJSON(s)
+  // );
+
+  //   // Restaurar estado de la orden si venía en el objeto
+  //   orden.estadoOrden = obj._estadoOrden ?? false;
+
+  //   orden._id = obj.id ?? null;
+
+  //   return orden;
+  // }
+
   public static fromJSON(obj: any): Orden {
-    const fecha = new Date(obj._fecha);
-    const orden = new Orden(obj._mesa, fecha);
+    const fecha = new Date(obj._fecha ?? obj.fecha);
+    const orden = new Orden(obj._mesa ?? obj.noMesa, fecha);
+    orden.id = obj.id ?? null;
 
-    // Reconstruir subórdenes (si es que existen)
-    orden.subOrdenes = obj._subOrdenes.map((s: any) =>
-      SubOrden.fromJSON(s)
-  );
+    // Leer subórdenes correctamente
+    const subOrdenesJson = obj._subOrdenes;
 
-    // Restaurar estado de la orden si venía en el objeto
-    orden.estadoOrden = obj._estadoOrden ?? false;
+    orden.subOrdenes = Array.isArray(subOrdenesJson)
+      ? subOrdenesJson.map((s: any) => SubOrden.fromJSON(s))
+      : [];
+
+    orden.estadoOrden = obj._estadoOrden ?? obj.estadoOrden ?? false;
 
     return orden;
   }
 
-    public toJSON() {
+
+  public toJSON() {
     return {
+      id: this.id ?? null,
       _mesa: this._mesa,
       _fecha: this._fecha.toISOString(),
-      _subOrdenes:this._subOrdenes.map(sub => sub.toJSON())
+      _estadoOrden: this.estadoOrden,
+      _subOrdenes: this._subOrdenes.map(sub => sub.toJSON())
     };
   }
+
 
 }

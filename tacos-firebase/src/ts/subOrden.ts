@@ -145,9 +145,18 @@ export class SubOrden {
     return resultado.trim();
   }
 
+  // public static fromJSON(obj: any): SubOrden {
+  //   return new SubOrden(obj._tacos, obj._entamalados, obj._bebidas);
+  // }
+
   public static fromJSON(obj: any): SubOrden {
-    return new SubOrden(obj._tacos, obj._entamalados, obj._bebidas);
-  }
+  return new SubOrden(
+    obj._tacos ?? obj.tacos,
+    obj._entamalados ?? obj.entamalados,
+    obj._bebidas ?? obj.bebidas
+  );
+}
+
 
   public toJSON(): any {
     return {

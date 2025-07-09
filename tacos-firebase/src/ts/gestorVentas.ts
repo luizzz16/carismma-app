@@ -1,8 +1,7 @@
 import {serializarOrden} from "./serializar";
 import {Orden} from "./orden";
 import { deserializarOrden} from "./serializar";
-import {collection, addDoc} from "firebase/firestore";
-import {db} from "./app.js";
+// import {GestorOrdenesFirestore} from "./gestorFirestore.ts";
 
 export class GestorVentas {
   private _ventasPorDia: Record<string, Orden[]> = {};
@@ -20,22 +19,12 @@ export class GestorVentas {
 
   // Y guarda solo esa nueva orden en el localStorage
   serializarOrden(orden);
-  this.guardarEnFirestore(orden);
+  // GestorOrdenesFirestore.guardarEnFirestore(orden);
 }
 
 
   obtenerVentasPorFecha(fecha: Date): Orden[] {
     return deserializarOrden(fecha);
-  }
-
-  async guardarEnFirestore(orden: Orden) {
-    try {
-      const ordenObj = orden.toJSON ? orden.toJSON() : JSON.parse(JSON.stringify(orden));
-      await addDoc(collection(db, "ordenes"), ordenObj);
-      console.log("Orden guardada en Firestore");
-    } catch (e) {
-      console.error("Error al guardar en Firestore:", e);
-    }
   }
 
 }

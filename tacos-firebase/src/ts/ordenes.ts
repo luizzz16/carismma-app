@@ -1,6 +1,7 @@
 import {SubOrden} from "./subOrden";
 import {Orden} from "./orden";
-import { GestorVentas } from "./gestorVentas";
+import {GestorVentas} from "./gestorVentas";
+import {GestorOrdenesFirestore} from "./gestorFirestore.ts";
 
 export class Ordenes {
   private _gestorVentas: GestorVentas;
@@ -34,6 +35,9 @@ export class Ordenes {
   private _htmlBotonSubOrden: HTMLButtonElement;
 
   constructor(gestorVentas: GestorVentas) {
+    //firestore
+    this.escucharOrdenesFirestore();
+
     this._gestorVentas = gestorVentas;
     this._ordenes = [];
 
@@ -80,10 +84,7 @@ export class Ordenes {
       if (ordenSeleccionada) {
         this.btnEstadoOrden(ordenSeleccionada);
         this._htmlListaSubOrdenes.innerHTML = '';
-        ordenSeleccionada.subOrdenes.forEach((subOrden, index) => {
-          const li = document.createElement('li');
-          this.mostrarSubOrdenes(ordenSeleccionada);
-        });
+        this.mostrarSubOrdenes(ordenSeleccionada);
       } else {
         this._htmlFormatoOrden.textContent = '';
         this._htmlListaSubOrdenes.innerHTML = '';
@@ -101,6 +102,10 @@ export class Ordenes {
           alert("Número de mesa inválido");
           return;
         }
+        if (!this._htmlFechaOrden.value) {
+          alert("Fecha de orden es requerida");
+          return;
+        }
       const fecha = new Date(this._htmlFechaOrden.value);
         if (isNaN(fecha.getTime())) {
           console.error("Fecha inválida");
@@ -110,7 +115,34 @@ export class Ordenes {
       this._ordenes.push(nuevaOrden);
       this._ordenes.sort((a, b) => a.noMesa - b.noMesa);
       this.agregarOrdenSelector();
+      this._htmlListaSubOrdenes.innerHTML = '';
+      this.mostrarSubOrdenes(nuevaOrden);
+      this._htmlSelectMesa.value = noMesa.toString();
+      GestorOrdenesFirestore.guardarOrden(nuevaOrden);
     }
+
+  private escucharOrdenesFirestore() {
+    GestorOrdenesFirestore.escucharOrdenes((ordenesDesdeFirestore) => {
+      const nuevas = ordenesDesdeFirestore.filter(o =>
+        !this._ordenes.some(local => local.noMesa === o.noMesa && local.formatoFecha() === o.formatoFecha())
+      );
+
+      nuevas.forEach(nuevaOrden => {
+        this._ordenes.push(nuevaOrden);
+      });
+
+      this._ordenes.sort((a, b) => a.noMesa - b.noMesa);
+      this.agregarOrdenSelector();
+
+      if (nuevas.length > 0) {
+        const ultima = nuevas[nuevas.length - 1];
+        this._htmlSelectMesa.value = ultima.noMesa.toString();
+        this._htmlListaSubOrdenes.innerHTML = '';
+        this.mostrarSubOrdenes(ultima);
+      }
+    });
+  }
+
 
     ////////////////////////////////////////////////////////////////////////////////////
     private agregarOrdenSelector() {
@@ -128,7 +160,7 @@ export class Ordenes {
 
 
     ////////////////////////////////////////////////////////////////////////////////////
-    crearSubOrden() {
+    async crearSubOrden() {
       const tacos = {
         'Tacos de Carne de puerco': this.getSafeValue(this._htmlPuerco),
         'Tacos de Chicharrón': this.getSafeValue(this._htmlChicharron),
@@ -161,12 +193,20 @@ export class Ordenes {
       orden.subOrdenes.push(nuevaSubOrden);
 
       this._htmlListaSubOrdenes.innerHTML = '';
-      orden.subOrdenes.forEach((subOrden, index) => {
-        const li = document.createElement('li');
-        this.mostrarSubOrdenes(orden);
-      });
-      this.btnEstadoOrden(orden);
 
+      if (orden.id) {
+        await GestorOrdenesFirestore.actualizarSubOrdenes(orden.id, orden.subOrdenes);
+        let nuevaOrden = await GestorOrdenesFirestore.obtenerOrdenPorId(orden.id);
+        if(nuevaOrden) {
+          this.mostrarSubOrdenes(nuevaOrden);
+          this.btnEstadoOrden(nuevaOrden);
+          console.log("Subordes mostradas:", nuevaOrden);
+        } else {
+          console.error("No se encontró la orden actualizada.");
+        }
+      } else {
+        console.error("La orden no tiene un ID asignado.");
+      }
     } else {
       alert("No existe una orden con ese número de mesa.");
     }
@@ -262,6 +302,7 @@ export class Ordenes {
     private mostrarSubOrdenes(orden: Orden): void {
       this._htmlListaSubOrdenes.innerHTML = '';
       orden.subOrdenes.forEach((subOrden, index) => {
+        console.log("¿Es instancia de SubOrden?", subOrden instanceof SubOrden);
         const li = document.createElement('li');
         li.innerHTML = `SubOrden ${index + 1}: ${subOrden.formatoSubOrden()} <button type='button' class='btnEliminarSubOrden'>Eliminar</button>`;
         
