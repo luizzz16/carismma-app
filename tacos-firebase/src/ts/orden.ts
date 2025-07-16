@@ -1,11 +1,12 @@
 import {SubOrden} from "./subOrden";
 
 export class Orden {
-  public id: string | null = null;
+  public id: string = '';
   private _subOrdenes: SubOrden[];
   private _mesa: number;
   private _fecha: Date;
   private _estadoOrden: boolean;
+  private _especificaciones: string = '';
 
   constructor(mesa: number, fecha: Date) {
     this._mesa = mesa;
@@ -36,6 +37,14 @@ export class Orden {
   get estadoOrden() {
     return this._estadoOrden;
   }
+
+  get especificaciones() {
+    return this._especificaciones;
+  }
+
+  set especificaciones(especificaciones: string) {
+    this._especificaciones = especificaciones;
+  } 
 
 
   getTotal(): number {
@@ -118,9 +127,10 @@ export class Orden {
   // }
 
   public static fromJSON(obj: any): Orden {
-    const fecha = new Date(obj._fecha ?? obj.fecha);
+    const fecha = obj.fecha?.toDate?.() || new Date(obj.fecha);
     const orden = new Orden(obj._mesa ?? obj.noMesa, fecha);
-    orden.id = obj.id ?? null;
+    orden.id = obj.id?.toString() ?? '';
+
 
     // Leer subórdenes correctamente
     const subOrdenesJson = obj._subOrdenes;
@@ -130,6 +140,7 @@ export class Orden {
       : [];
 
     orden.estadoOrden = obj._estadoOrden ?? obj.estadoOrden ?? false;
+    orden._especificaciones = obj._especificaciones ?? obj.especificaciones ?? '';
 
     return orden;
   }
@@ -141,7 +152,8 @@ export class Orden {
       _mesa: this._mesa,
       _fecha: this._fecha.toISOString(),
       _estadoOrden: this.estadoOrden,
-      _subOrdenes: this._subOrdenes.map(sub => sub.toJSON())
+      _subOrdenes: this._subOrdenes.map(sub => sub.toJSON()),
+      _especificaciones: this._especificaciones
     };
   }
 

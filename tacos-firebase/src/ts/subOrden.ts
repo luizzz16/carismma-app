@@ -2,16 +2,37 @@ export class SubOrden {
   private _tacos: Record<string, number>;
   private _entamalados: Record<string, number>;
   private _bebidas: Record<string, number>;
+  private id: string | null = null;
 
   constructor(
     tacos: Record<string, number>,
     entamalados: Record<string, number>,
-    bebidas: Record<string, number>
+    bebidas: Record<string, number>,
+    id?: string
   ) {
+    this.id = id || this.generarUUID();
     this._tacos = tacos;
     this._entamalados = entamalados;
     this._bebidas = bebidas;
   }
+
+  get idSub() {
+    return this.id;
+  }
+
+  private generarUUID(): string {
+  if (window.crypto && window.crypto.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+
+  // Fallback manual (no criptográficamente seguro, pero funciona)
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 
   getTotal(): number {
     let total = 0;
@@ -153,13 +174,15 @@ export class SubOrden {
   return new SubOrden(
     obj._tacos ?? obj.tacos,
     obj._entamalados ?? obj.entamalados,
-    obj._bebidas ?? obj.bebidas
+    obj._bebidas ?? obj.bebidas,
+    obj.id ?? null
   );
 }
 
 
   public toJSON(): any {
     return {
+      id: this.id ?? null,
       _tacos: this._tacos,
       _entamalados: this._entamalados,
       _bebidas: this._bebidas

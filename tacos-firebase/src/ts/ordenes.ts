@@ -11,6 +11,8 @@ export class Ordenes {
   private _htmlFechaOrden: HTMLInputElement;
   private _htmlSelectMesa: HTMLSelectElement;
   private _htmlFormatoOrden: HTMLHeadElement;
+  private _htmlEspecificaciones: HTMLTextAreaElement;
+  private _htmlBotonEspecificaciones: HTMLButtonElement;
   private _htmlListaSubOrdenes: HTMLOListElement;
   // Tacos
   private _htmlPuerco: HTMLInputElement;
@@ -46,6 +48,8 @@ export class Ordenes {
     this._htmlFechaOrden = document.getElementById("fechaOrden") as HTMLInputElement;
     this._htmlSelectMesa = document.getElementById("SelectorNoMesa") as HTMLSelectElement;
     this._htmlFormatoOrden = document.getElementById("formatoOrden") as HTMLHeadElement;
+    this._htmlEspecificaciones = document.getElementById("especificaciones") as HTMLTextAreaElement;
+    this._htmlBotonEspecificaciones = document.getElementById("mostrarEspecificaciones") as HTMLButtonElement;
     this._htmlListaSubOrdenes = document.getElementById("listaSubOrdenes") as HTMLOListElement;
 
     // Tacos
@@ -85,17 +89,29 @@ export class Ordenes {
         this.btnEstadoOrden(ordenSeleccionada);
         this._htmlListaSubOrdenes.innerHTML = '';
         this.mostrarSubOrdenes(ordenSeleccionada);
+        this.mostrarEspecificaciones(ordenSeleccionada);
       } else {
         this._htmlFormatoOrden.textContent = '';
         this._htmlListaSubOrdenes.innerHTML = '';
+        this._htmlEspecificaciones.value = '';
       }
     });
-  }
+
+  this._htmlBotonEspecificaciones.addEventListener("click", async () => {
+    const orden = this._ordenes.find(o => o.noMesa.toString() === this._htmlSelectMesa.value);
+    if (orden && orden.id) {
+      const texto = this._htmlEspecificaciones.value;
+      await GestorOrdenesFirestore.actualizarEspecificaciones(orden.id, texto);
+      orden.especificaciones = texto;
+      alert("Especificaciones actualizadas");
+    }
+  });
+}
 
 
     ////////////////////////////////////////////////////////////////////////////////////
     // Método para crear una nueva orden
-    crearOrden() {
+    async crearOrden() {
       const noMesa = Number(this._htmlNumeroMesa.value);
       const mesaExistente = this._ordenes.some(orden => orden.noMesa === noMesa);
         if (isNaN(noMesa) || noMesa <= 0 || mesaExistente || !Number.isInteger(noMesa)) {
@@ -113,47 +129,80 @@ export class Ordenes {
         }
       const nuevaOrden = new Orden(noMesa, fecha);
       this._ordenes.push(nuevaOrden);
-      this._ordenes.sort((a, b) => a.noMesa - b.noMesa);
       this.agregarOrdenSelector();
-      this._htmlListaSubOrdenes.innerHTML = '';
-      this.mostrarSubOrdenes(nuevaOrden);
       this._htmlSelectMesa.value = noMesa.toString();
-      GestorOrdenesFirestore.guardarOrden(nuevaOrden);
+      this._htmlListaSubOrdenes.innerHTML = '';
+      // nuevaOrden.especificaciones = this._htmlEspecificaciones.value;
+      this.btnEstadoOrden(nuevaOrden);
+      this.mostrarSubOrdenes(nuevaOrden);
+      this.mostrarEspecificaciones(nuevaOrden);
+
+      // Guardar en Firestore (con await por seguridad)
+      try {
+        await GestorOrdenesFirestore.guardarOrden(nuevaOrden);
+      } catch (error) {
+        console.error("Error al guardar la orden en Firestore:", error);
+        alert("Hubo un error al guardar la orden. Intenta nuevamente.");
+      }
+      // GestorOrdenesFirestore.guardarOrden(nuevaOrden);
     }
 
   private escucharOrdenesFirestore() {
     GestorOrdenesFirestore.escucharOrdenes((ordenesDesdeFirestore) => {
-      const nuevas = ordenesDesdeFirestore.filter(o =>
-        !this._ordenes.some(local => local.noMesa === o.noMesa && local.formatoFecha() === o.formatoFecha())
-      );
+      this._ordenes = ordenesDesdeFirestore;
 
-      nuevas.forEach(nuevaOrden => {
-        this._ordenes.push(nuevaOrden);
-      });
+      // Obtener la mesa seleccionada actualmente en el selector
+      const mesaSeleccionada = this._htmlSelectMesa.value;
+      const ordenSeleccionada = this._ordenes.find(o => o.noMesa.toString() === mesaSeleccionada);
 
-      this._ordenes.sort((a, b) => a.noMesa - b.noMesa);
-      this.agregarOrdenSelector();
+      // Repintar el selector sin perder la selección previa
+      this.agregarOrdenSelector(mesaSeleccionada);
 
-      if (nuevas.length > 0) {
-        const ultima = nuevas[nuevas.length - 1];
-        this._htmlSelectMesa.value = ultima.noMesa.toString();
+      // Mostrar información según lo que esté seleccionado
+      if (ordenSeleccionada) {
+        // Si hay una orden seleccionada manualmente, mantenerla
+        this._htmlSelectMesa.value = ordenSeleccionada.noMesa.toString();
+        this.btnEstadoOrden(ordenSeleccionada);
+        this.mostrarSubOrdenes(ordenSeleccionada);
+        this.mostrarEspecificaciones(ordenSeleccionada);
+      } else if (this._ordenes.length > 0) {
+        // Si no hay selección válida, mostrar la última orden
+        const ultimaOrden = this._ordenes[this._ordenes.length - 1];
+        this._htmlSelectMesa.value = ultimaOrden.noMesa.toString();
+        this.btnEstadoOrden(ultimaOrden);
+        this.mostrarSubOrdenes(ultimaOrden);
+        this.mostrarEspecificaciones(ultimaOrden);
+      } else {
+        // Si no hay órdenes, limpiar campos
+        this._htmlSelectMesa.value = '';
         this._htmlListaSubOrdenes.innerHTML = '';
-        this.mostrarSubOrdenes(ultima);
+        this._htmlFormatoOrden.innerHTML = '';
+        this._htmlEspecificaciones.value = '';
       }
     });
   }
 
+  private mostrarEspecificaciones(orden: Orden) {
+    this._htmlEspecificaciones.value = '';
+    this._htmlEspecificaciones.value = orden.especificaciones;
+  }
+
 
     ////////////////////////////////////////////////////////////////////////////////////
-    private agregarOrdenSelector() {
+    private agregarOrdenSelector(mesaSeleccionada?: string) {
       this._htmlSelectMesa.innerHTML = '';
       this._ordenes.forEach((orden) => {
       const option = document.createElement('option');
       option.value = orden.noMesa.toString();
       option.text = `${orden.noMesa}`;
-      this.btnEstadoOrden(orden);
+      // this.btnEstadoOrden(orden);
+      // this._htmlSelectMesa.value = orden.noMesa.toString();
       this._htmlSelectMesa.appendChild(option);
     });
+
+    if (mesaSeleccionada) {
+      this._htmlSelectMesa.value = mesaSeleccionada;
+    }
     this._htmlNumeroMesa.value = '';
     this._htmlFechaOrden.value = '';
   }
@@ -189,6 +238,17 @@ export class Ordenes {
       const numeroMesa = Number(this._htmlSelectMesa.value);
       const orden = this._ordenes.find(ord => ord.noMesa === numeroMesa);
 
+      const totalTacos = Object.values(tacos).reduce((acc, cantidad) => acc + cantidad, 0)
+      const totalEntamalados = Object.values(entamalados).reduce((acc, cantidad) => acc + cantidad, 0);
+      const totalBebidas = Object.values(bebidas).reduce((acc, cantidad) => acc + cantidad, 0);
+
+      let contador = totalBebidas + totalEntamalados + totalTacos;
+
+      if (contador === 0) {
+        alert("No se ha agregado nada a la suborden");
+        return;
+      }
+
       if (orden) {
       orden.subOrdenes.push(nuevaSubOrden);
 
@@ -201,6 +261,7 @@ export class Ordenes {
           this.mostrarSubOrdenes(nuevaOrden);
           this.btnEstadoOrden(nuevaOrden);
           console.log("Subordes mostradas:", nuevaOrden);
+          alert(`Suborden agregada a la orden de mesa ${orden.noMesa}`);
         } else {
           console.error("No se encontró la orden actualizada.");
         }
@@ -252,6 +313,7 @@ export class Ordenes {
     btnEliminarOrden.addEventListener('click', () => {
       this.eliminarOrden(orden);
       alert(`Orden de mesa ${orden.noMesa} eliminada`);
+      GestorOrdenesFirestore.eliminarOrden(orden.id!);
     });
 
     this._htmlFormatoOrden.appendChild(hd);
@@ -269,24 +331,45 @@ export class Ordenes {
 
     ////////////////////////////////////////////////////////////////////////////////////
     private actualizarSelectMesas(): void {
-    this._htmlSelectMesa.innerHTML = '';
-    this._ordenes.forEach(o => {
-      const option = document.createElement('option');
-      option.value = o.noMesa.toString();
-      option.text = o.noMesa.toString();
-      this._htmlSelectMesa.appendChild(option);
-    });
+      const mesaSeleccionadaAntes = this._htmlSelectMesa.value;
+      this._htmlSelectMesa.innerHTML = '';
 
-    if (this._ordenes.length > 0) {
-      const primeraOrden = this._ordenes[0];
-      this._htmlSelectMesa.value = primeraOrden.noMesa.toString();
-      this.btnEstadoOrden(primeraOrden); // Vuelve a mostrar el estado de la orden
-      this.mostrarSubOrdenes(primeraOrden); // Vuelve a mostrar las subórdenes
-    } else {
-      // Si ya no hay órdenes, limpia todo
-      this._htmlFormatoOrden.innerHTML = '';
-      this._htmlListaSubOrdenes.innerHTML = '';
-    }
+      this._ordenes.forEach(o => {
+        const option = document.createElement('option');
+        option.value = o.noMesa.toString();
+        option.text = o.noMesa.toString();
+        this._htmlSelectMesa.appendChild(option);
+      });
+
+      const sigueExistiendo = this._ordenes.some(o => o.noMesa.toString() === mesaSeleccionadaAntes);
+
+      if (sigueExistiendo) {
+        this._htmlSelectMesa.value = mesaSeleccionadaAntes;
+        const ordenSeleccionada = this._ordenes.find(o => o.noMesa.toString() === mesaSeleccionadaAntes);
+        if (ordenSeleccionada) {
+          this.btnEstadoOrden(ordenSeleccionada);
+          this.mostrarSubOrdenes(ordenSeleccionada);
+        }
+      } else if (this._ordenes.length > 0) {
+        const primeraOrden = this._ordenes[0];
+        this._htmlSelectMesa.value = primeraOrden.noMesa.toString();
+        this.btnEstadoOrden(primeraOrden);
+        this.mostrarSubOrdenes(primeraOrden);
+      } else {
+        // Si ya no hay órdenes, limpia todo
+        this._htmlFormatoOrden.innerHTML = '';
+        this._htmlListaSubOrdenes.innerHTML = '';
+      }
+      // if (this._ordenes.length > 0) {
+      //   const primeraOrden = this._ordenes[0];
+      //   this._htmlSelectMesa.value = primeraOrden.noMesa.toString();
+      //   this.btnEstadoOrden(primeraOrden); // Vuelve a mostrar el estado de la orden
+      //   this.mostrarSubOrdenes(primeraOrden); // Vuelve a mostrar las subórdenes
+      // } else {
+      //   // Si ya no hay órdenes, limpia todo
+      //   this._htmlFormatoOrden.innerHTML = '';
+      //   this._htmlListaSubOrdenes.innerHTML = '';
+      // }
   }
 
 
@@ -302,6 +385,7 @@ export class Ordenes {
     private mostrarSubOrdenes(orden: Orden): void {
       this._htmlListaSubOrdenes.innerHTML = '';
       orden.subOrdenes.forEach((subOrden, index) => {
+
         console.log("¿Es instancia de SubOrden?", subOrden instanceof SubOrden);
         const li = document.createElement('li');
         li.innerHTML = `SubOrden ${index + 1}: ${subOrden.formatoSubOrden()} <button type='button' class='btnEliminarSubOrden'>Eliminar</button>`;
@@ -309,6 +393,7 @@ export class Ordenes {
         const btnEliminar = li.querySelector('.btnEliminarSubOrden') as HTMLButtonElement;
         btnEliminar.addEventListener('click', () => {
           const idx = orden.subOrdenes.indexOf(subOrden);
+          GestorOrdenesFirestore.eliminarSubOrden(orden.id!, subOrden.idSub!);
           if (idx !== -1) {
             orden.subOrdenes.splice(idx, 1);
             this.mostrarSubOrdenes(orden); // Recursivamente vuelve a renderizar la lista

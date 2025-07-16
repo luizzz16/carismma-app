@@ -1,5 +1,4 @@
-
-import { GestorVentas } from './gestorVentas';
+import {GestorVentas} from './gestorVentas';
 
 export class Administrar {
   private _gestor: GestorVentas;
@@ -15,7 +14,7 @@ export class Administrar {
     this._htmlResultado = document.querySelector('#resultadoVenta') as HTMLDivElement;
     this._htmlListaVentas = document.getElementById('listaVentas') as HTMLOListElement;
 
-    this._htmlbotonBuscarVenta.addEventListener('click', () => {
+    this._htmlbotonBuscarVenta.addEventListener('click', async () => {
       const fechaStr = this._htmlSelectorFecha.value;
         if (!fechaStr) {
           alert('Selecciona una fecha primero.');
@@ -26,7 +25,7 @@ export class Administrar {
         this._htmlListaVentas.innerHTML = '';
 
         const fecha = new Date(fechaStr);
-        const ordenes = this._gestor.obtenerVentasPorFecha(fecha);
+        const ordenes = await this._gestor.obternerVentasPorFecha(fecha);
 
         if (ordenes.length === 0) {
           this._htmlResultado.innerHTML = '<p>No hay ventas en esa fecha.</p>';

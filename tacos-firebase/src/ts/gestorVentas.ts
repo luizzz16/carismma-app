@@ -1,7 +1,5 @@
-import {serializarOrden} from "./serializar";
 import {Orden} from "./orden";
-import { deserializarOrden} from "./serializar";
-// import {GestorOrdenesFirestore} from "./gestorFirestore.ts";
+import {GestorOrdenesFirestore} from "./gestorFirestore.ts";
 
 export class GestorVentas {
   private _ventasPorDia: Record<string, Orden[]> = {};
@@ -17,14 +15,19 @@ export class GestorVentas {
 
   this._ventasPorDia[fecha].push(orden);
 
-  // Y guarda solo esa nueva orden en el localStorage
-  serializarOrden(orden);
-  // GestorOrdenesFirestore.guardarEnFirestore(orden);
-}
+  GestorOrdenesFirestore.cambiarEstadoOrden(orden.id)
+    .then(() => {
+      console.log("Nuevo estado de orden: PAGADA");
+    })
+    .catch((error) => {
+      console.error("Error al guardar la orden en Firestore:", error);
+    });
+  }
 
-
-  obtenerVentasPorFecha(fecha: Date): Orden[] {
-    return deserializarOrden(fecha);
+  async obternerVentasPorFecha(fecha: Date) {
+    return await GestorOrdenesFirestore.obtenerOrdenesPorFecha(fecha);
   }
 
 }
+
+

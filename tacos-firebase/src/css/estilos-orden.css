@@ -107,7 +107,7 @@ section.seccion {
   padding-left: 1.5rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 300px) {
   nav {
     flex-direction: column;
     align-items: center;
