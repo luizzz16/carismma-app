@@ -25,7 +25,8 @@ export class GestorVentas {
   }
 
   async obternerVentasPorFecha(fecha: Date) {
-    return await GestorOrdenesFirestore.obtenerOrdenesPorFecha(fecha);
+    let newfecha = fecha.toISOString().split("T")[0];
+    return await GestorOrdenesFirestore.obtenerOrdenesPorFecha(newfecha);
   }
 
 }

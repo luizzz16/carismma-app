@@ -10,7 +10,7 @@ export class Administrar {
   constructor(gestorVentas: GestorVentas) {
     this._gestor = gestorVentas;
     this._htmlSelectorFecha = document.getElementById('selectorFecha') as HTMLInputElement;
-    this._htmlbotonBuscarVenta = document.getElementById('btnBuscarVent') as HTMLButtonElement;
+    this._htmlbotonBuscarVenta = document.getElementById('btnBuscarVenta') as HTMLButtonElement;
     this._htmlResultado = document.querySelector('#resultadoVenta') as HTMLDivElement;
     this._htmlListaVentas = document.getElementById('listaVentas') as HTMLOListElement;
 
@@ -26,6 +26,7 @@ export class Administrar {
 
         const fecha = new Date(fechaStr);
         const ordenes = await this._gestor.obternerVentasPorFecha(fecha);
+        console.log('Ventas obtenidas:', ordenes);
 
         if (ordenes.length === 0) {
           this._htmlResultado.innerHTML = '<p>No hay ventas en esa fecha.</p>';

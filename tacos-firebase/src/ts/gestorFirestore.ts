@@ -1,5 +1,5 @@
 // gestorOrdenesFirestore.ts
-import {collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, serverTimestamp, query, orderBy, where, getDocs} from "firebase/firestore";
+import {collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, serverTimestamp, query, orderBy, where, getDocs, Timestamp} from "firebase/firestore";
 import {db} from "./app"; // Asegúrate de que la ruta sea correcta
 import {Orden} from "./orden";
 import {SubOrden} from "./subOrden"; // Asegúrate de que la ruta sea correcta
@@ -7,21 +7,12 @@ import {SubOrden} from "./subOrden"; // Asegúrate de que la ruta sea correcta
 export class GestorOrdenesFirestore {
   private static readonly coleccion = "ordenes";
 
-  
-  static async guardarEnFirestore(orden: Orden) {
-    try {
-      const ordenObj = orden.toJSON ? orden.toJSON() : JSON.parse(JSON.stringify(orden));
-      await addDoc(collection(db, "ordenes"), ordenObj);
-      console.log("Orden guardada en Firestore");
-    } catch (e) {
-      console.error("Error al guardar en Firestore:", e);
-    }
-  }
-
   // Guardar nueva orden
   static async guardarOrden(orden: Orden) {
     const ordenObj = orden.toJSON ? orden.toJSON() : JSON.parse(JSON.stringify(orden));
-    ordenObj.fecha = serverTimestamp();
+    // ordenObj.fecha = orden.fecha;
+    ordenObj.fecha = orden.fecha;
+    ordenObj.fechaPlano = orden.fecha.toISOString().split("T")[0]; // "2025-07-18"
     const docRef = await addDoc(collection(db, this.coleccion), ordenObj);
 
     orden.id = docRef.id; // Asignar el ID de Firestore a la orden
@@ -32,7 +23,9 @@ export class GestorOrdenesFirestore {
   // Escuchar todas las órdenes en tiempo real
   static escucharOrdenes(callback: (ordenes: Orden[]) => void) {
     const ref = collection(db, this.coleccion);
-    const ordenesQuery = query(ref, orderBy("fecha"));
+    const ordenesQuery = query(ref, 
+      orderBy("fecha"),
+      where("_estadoOrden", "==", false)); // Solo órdenes no pagadas
 
     onSnapshot(ordenesQuery, (snapshot) => {
       const ordenes = snapshot.docs.map(doc => Orden.fromJSON({ id: doc.id, ...doc.data() }));
@@ -136,35 +129,26 @@ export class GestorOrdenesFirestore {
   }
 }
 
-
-  static async obtenerOrdenesPorFecha(fecha: Date): Promise<Orden[]> {
-    const fechaFormateada = Orden.formatDate(fecha); // yyyy-mm-dd
-
+  static async obtenerOrdenesPorFecha(fechaBuscada: string): Promise<Orden[]> {
     const ref = collection(db, this.coleccion);
-    const ordenesQuery = query(
+
+    // Consulta compuesta: estado true + fecha exacta
+    const q = query(
       ref,
-      where("_estadoOrden", "==", true), // 🔍 solo órdenes pagadas
-      orderBy("fecha") // opcional: ordenarlas por fecha
+      where("_estadoOrden", "==", true),
+      where("fechaPlano", "==", fechaBuscada)
     );
 
-    const snapshot = await getDocs(ordenesQuery);
+    const snapshot = await getDocs(q);
     const ordenes: Orden[] = [];
 
     snapshot.forEach(docSnap => {
       const data = docSnap.data();
-      const fechaOrden = data._fecha?.toDate?.() || new Date(data._fecha);
-
-      // Formateamos la fecha para comparar solo yyyy-mm-dd
-      const fechaSolo = fechaOrden.toISOString().split("T")[0];
-
-      if (fechaSolo === fechaFormateada) {
-        ordenes.push(Orden.fromJSON({ id: docSnap.id, ...data }));
-      }
+      console.log("Fecha en Firestore:", data.fechaPlano);  // Confirmar que coincide
+      ordenes.push(Orden.fromJSON({ id: docSnap.id, ...data }));
     });
 
     return ordenes;
   }
-
-
 
 }

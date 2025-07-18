@@ -10,7 +10,7 @@ export class Ordenes {
   private _htmlNumeroMesa: HTMLInputElement;
   private _htmlFechaOrden: HTMLInputElement;
   private _htmlSelectMesa: HTMLSelectElement;
-  private _htmlFormatoOrden: HTMLHeadElement;
+  private _htmlFormatoOrden: HTMLHeadingElement;
   private _htmlEspecificaciones: HTMLTextAreaElement;
   private _htmlBotonEspecificaciones: HTMLButtonElement;
   private _htmlListaSubOrdenes: HTMLOListElement;
@@ -47,7 +47,7 @@ export class Ordenes {
     this._htmlNumeroMesa = document.getElementById("noMesa") as HTMLInputElement;
     this._htmlFechaOrden = document.getElementById("fechaOrden") as HTMLInputElement;
     this._htmlSelectMesa = document.getElementById("SelectorNoMesa") as HTMLSelectElement;
-    this._htmlFormatoOrden = document.getElementById("formatoOrden") as HTMLHeadElement;
+    this._htmlFormatoOrden = document.getElementById("formatoOrden") as HTMLHeadingElement;
     this._htmlEspecificaciones = document.getElementById("especificaciones") as HTMLTextAreaElement;
     this._htmlBotonEspecificaciones = document.getElementById("mostrarEspecificaciones") as HTMLButtonElement;
     this._htmlListaSubOrdenes = document.getElementById("listaSubOrdenes") as HTMLOListElement;

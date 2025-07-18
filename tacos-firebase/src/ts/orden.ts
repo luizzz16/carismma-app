@@ -1,4 +1,5 @@
 import {SubOrden} from "./subOrden";
+import {Timestamp} from "firebase/firestore";
 
 export class Orden {
   public id: string = '';
@@ -108,24 +109,6 @@ export class Orden {
     return resumen;
   }
 
-
-  // public static fromJSON(obj: any): Orden {
-  //   const fecha = new Date(obj._fecha);
-  //   const orden = new Orden(obj._mesa, fecha);
-
-  //   // Reconstruir subórdenes (si es que existen)
-  //   orden.subOrdenes = obj.subOrdenes.map((s: any) =>
-  //     SubOrden.fromJSON(s)
-  // );
-
-  //   // Restaurar estado de la orden si venía en el objeto
-  //   orden.estadoOrden = obj._estadoOrden ?? false;
-
-  //   orden._id = obj.id ?? null;
-
-  //   return orden;
-  // }
-
   public static fromJSON(obj: any): Orden {
     const fecha = obj.fecha?.toDate?.() || new Date(obj.fecha);
     const orden = new Orden(obj._mesa ?? obj.noMesa, fecha);
@@ -150,7 +133,7 @@ export class Orden {
     return {
       id: this.id ?? null,
       _mesa: this._mesa,
-      _fecha: this._fecha.toISOString(),
+      // _fecha: Timestamp.fromDate(this._fecha),
       _estadoOrden: this.estadoOrden,
       _subOrdenes: this._subOrdenes.map(sub => sub.toJSON()),
       _especificaciones: this._especificaciones
