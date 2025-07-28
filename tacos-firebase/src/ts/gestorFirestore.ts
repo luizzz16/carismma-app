@@ -1,5 +1,5 @@
 // gestorOrdenesFirestore.ts
-import {collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, serverTimestamp, query, orderBy, where, getDocs, Timestamp} from "firebase/firestore";
+import {collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, query, orderBy, where, getDocs} from "firebase/firestore";
 import {db} from "./app"; // Asegúrate de que la ruta sea correcta
 import {Orden} from "./orden";
 import {SubOrden} from "./subOrden"; // Asegúrate de que la ruta sea correcta
@@ -7,12 +7,13 @@ import {SubOrden} from "./subOrden"; // Asegúrate de que la ruta sea correcta
 export class GestorOrdenesFirestore {
   private static readonly coleccion = "ordenes";
 
-  // Guardar nueva orden
+  ////////////////////////////////////////////////////////////////////
+  //  Guardar nueva orden
   static async guardarOrden(orden: Orden) {
     const ordenObj = orden.toJSON ? orden.toJSON() : JSON.parse(JSON.stringify(orden));
     // ordenObj.fecha = orden.fecha;
     ordenObj.fecha = orden.fecha;
-    ordenObj.fechaPlano = orden.fecha.toISOString().split("T")[0]; // "2025-07-18"
+    ordenObj.fecha = orden.fecha.toISOString().split("T")[0]; // "2025-07-18"
     const docRef = await addDoc(collection(db, this.coleccion), ordenObj);
 
     orden.id = docRef.id; // Asignar el ID de Firestore a la orden
@@ -20,6 +21,7 @@ export class GestorOrdenesFirestore {
     console.log("Orden con noMesa guardada en Firestore con ID:", orden.id);
   }
 
+  ////////////////////////////////////////////////////////////////////
   // Escuchar todas las órdenes en tiempo real
   static escucharOrdenes(callback: (ordenes: Orden[]) => void) {
     const ref = collection(db, this.coleccion);
@@ -33,6 +35,8 @@ export class GestorOrdenesFirestore {
     });
   }
 
+  ////////////////////////////////////////////////////////////////////
+  // Actualizar subórdenes de una orden
   static async actualizarSubOrdenes(idOrden: string, subOrdenes: SubOrden[]) {
     try {
       const ordenRef = doc(db, this.coleccion, idOrden);
@@ -45,6 +49,8 @@ export class GestorOrdenesFirestore {
     }
   }
 
+  ////////////////////////////////////////////////////////////////////
+  // Obtener una orden por ID
   static async obtenerOrdenPorId(idOrden: string): Promise<Orden | null> {
     try {
       const ref = doc(db, 'ordenes', idOrden);
@@ -63,6 +69,8 @@ export class GestorOrdenesFirestore {
     }
   }
 
+  ////////////////////////////////////////////////////////////////////
+  // Actualizar especificaciones de una orden
   static async actualizarEspecificaciones(idOrden: string, nuevasEspecificaciones: string) {
     try {
       const ordenRef = doc(db, this.coleccion, idOrden);
@@ -75,12 +83,14 @@ export class GestorOrdenesFirestore {
     }
   }
 
-
+  ////////////////////////////////////////////////////////////////////
   // Eliminar una orden
   static async eliminarOrden(id: string) {
     await deleteDoc(doc(db, this.coleccion, id));
   }
 
+  ////////////////////////////////////////////////////////////////////
+  // Eliminar una suborden de una orden
   static async eliminarSubOrden(idOrden: string, idSubOrden: string) {
     try {
       const ordenRef = doc(db, this.coleccion, idOrden);
@@ -109,12 +119,8 @@ export class GestorOrdenesFirestore {
     }
   }
 
-    // try {
-    //   const ordenRef = doc(db, this.coleccion, idOrden);
-    //   await updateDoc(ordenRef, {
-    //     _especificaciones: nuevasEspecificaciones
-    //   });
-
+  ////////////////////////////////////////////////////////////////////
+  // Cambiar estado de una orden a pagada
   static async cambiarEstadoOrden(idOrden: string) {
   try {
     const ordenRef = doc(db, this.coleccion, idOrden);
@@ -129,6 +135,8 @@ export class GestorOrdenesFirestore {
   }
 }
 
+  ////////////////////////////////////////////////////////////////////
+  // Obtener órdenes por fecha
   static async obtenerOrdenesPorFecha(fechaBuscada: string): Promise<Orden[]> {
     const ref = collection(db, this.coleccion);
 
@@ -136,7 +144,7 @@ export class GestorOrdenesFirestore {
     const q = query(
       ref,
       where("_estadoOrden", "==", true),
-      where("fechaPlano", "==", fechaBuscada)
+      where("fecha", "==", fechaBuscada)
     );
 
     const snapshot = await getDocs(q);
@@ -144,7 +152,7 @@ export class GestorOrdenesFirestore {
 
     snapshot.forEach(docSnap => {
       const data = docSnap.data();
-      console.log("Fecha en Firestore:", data.fechaPlano);  // Confirmar que coincide
+      console.log("Fecha en Firestore:", data.fecha);  // Confirmar que coincide
       ordenes.push(Orden.fromJSON({ id: docSnap.id, ...data }));
     });
 

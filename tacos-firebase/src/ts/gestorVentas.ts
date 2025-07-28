@@ -2,18 +2,16 @@ import {Orden} from "./orden";
 import {GestorOrdenesFirestore} from "./gestorFirestore.ts";
 
 export class GestorVentas {
-  private _ventasPorDia: Record<string, Orden[]> = {};
+  // private _ventasPorDia: Record<string, Orden[]> = {};
   // private _ventasPorSemana: Record<string, Orden[]> = {};
 
   agregarVenta(orden: Orden) {
-  const fecha = orden.formatoFecha();
-
-  // Agrega solo la orden actual en memoria
-  if (!this._ventasPorDia[fecha]) {
-    this._ventasPorDia[fecha] = [];
-  }
-
-  this._ventasPorDia[fecha].push(orden);
+  // const fecha = orden.formatoFecha();
+  // // Agrega solo la orden actual en memoria
+  // if (!this._ventasPorDia[fecha]) {
+  //   this._ventasPorDia[fecha] = [];
+  // }
+  // this._ventasPorDia[fecha].push(orden);
 
   GestorOrdenesFirestore.cambiarEstadoOrden(orden.id)
     .then(() => {
@@ -23,12 +21,10 @@ export class GestorVentas {
       console.error("Error al guardar la orden en Firestore:", error);
     });
   }
-
   async obternerVentasPorFecha(fecha: Date) {
-    let newfecha = fecha.toISOString().split("T")[0];
-    return await GestorOrdenesFirestore.obtenerOrdenesPorFecha(newfecha);
+    let nuevafecha = fecha.toISOString().split("T")[0];
+    return await GestorOrdenesFirestore.obtenerOrdenesPorFecha(nuevafecha);
   }
-
 }
 
 

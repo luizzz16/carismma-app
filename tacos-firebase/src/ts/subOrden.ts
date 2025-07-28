@@ -3,21 +3,42 @@ export class SubOrden {
   private _entamalados: Record<string, number>;
   private _bebidas: Record<string, number>;
   private id: string | null = null;
+  private _especificacionesSub: string = '';
+  // opciones?: { id?: string; especificacionesSub?: string }
 
   constructor(
     tacos: Record<string, number>,
     entamalados: Record<string, number>,
     bebidas: Record<string, number>,
-    id?: string
+    // id?: string,
+    // especificacionesSub: string = ''
+    opciones?: { id?: string; especificacionesSub?: string }
   ) {
-    this.id = id || this.generarUUID();
+    this.id = opciones?.id || this.generarUUID();
     this._tacos = tacos;
     this._entamalados = entamalados;
     this._bebidas = bebidas;
+    this._especificacionesSub = opciones?.especificacionesSub || '';
+  }
+
+  get tacos() {
+    return this._tacos;
+  }
+
+  get entamalados() {
+    return this._entamalados;
+  } 
+
+  get bebidas() {
+    return this._bebidas;
   }
 
   get idSub() {
     return this.id;
+  }
+
+  get especificacionesSub() {
+    return this._especificacionesSub;
   }
 
   private generarUUID(): string {
@@ -107,7 +128,7 @@ export class SubOrden {
     return partes.join(' | ');
   }
 
-  private formatoTacos(tacos: Record<string, number>): string {
+  formatoTacos(tacos: Record<string, number>): string {
     const abreviaturas: Record<string, string> = {
       'Tacos de Carne de puerco': 'TC',
       'Tacos de Chicharrón': 'TCH',
@@ -127,7 +148,7 @@ export class SubOrden {
     return resultado.trim();
   }
 
-  private formatoEntamalados(entamalados: Record<string, number>): string {
+  formatoEntamalados(entamalados: Record<string, number>): string {
     const abreviaturas: Record<string, string> = {
       'Ent. Carne de res': 'EC',
       'Ent. Frijol': 'EF',
@@ -145,7 +166,7 @@ export class SubOrden {
     return resultado.trim();
   }
 
-  private formatoBebidas(bebidas: Record<string, number>): string {
+  formatoBebidas(bebidas: Record<string, number>): string {
     const abreviaturas: Record<string, string> = {
       'Agua de sabor G': 'ASG',
       'Agua de sabor CH': 'ASCH',
@@ -175,7 +196,12 @@ export class SubOrden {
     obj._tacos ?? obj.tacos,
     obj._entamalados ?? obj.entamalados,
     obj._bebidas ?? obj.bebidas,
-    obj.id ?? null
+    // // obj.id ?? null,
+    // obj._especificacionesSub
+    {
+      id: obj.id ?? null,
+      especificacionesSub: obj._especificacionesSub ?? ''
+    }
   );
 }
 
@@ -185,7 +211,8 @@ export class SubOrden {
       id: this.id ?? null,
       _tacos: this._tacos,
       _entamalados: this._entamalados,
-      _bebidas: this._bebidas
+      _bebidas: this._bebidas,
+      _especificacionesSub: this._especificacionesSub
     };
   }
 } 
