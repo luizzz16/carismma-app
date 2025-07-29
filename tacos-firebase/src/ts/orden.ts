@@ -101,14 +101,6 @@ export class Orden {
   }
 
 
-  // public static formatDate(date: Date) {
-  //   const dia = (date.getDate()).toString().padStart(2, '0');
-  //   const mes = (date.getMonth() + 1).toString().padStart(2, '0'); 
-  //   const año = date.getFullYear();
-  //   return `${año}-${mes}-${dia}`;
-  // }
-
-
   getResumenConsumoOrd(): Record<string, number> {
     const resumen: Record<string, number> = {};
 
@@ -116,105 +108,60 @@ export class Orden {
       const resumenSub = sub.getResumenConsumoSub();
       for (const producto in resumenSub) {
         const cantidad = resumenSub[producto];
-        if (!producto || isNaN(cantidad)) continue; // evitar errores
+        if (!producto || isNaN(cantidad)) continue;
           resumen[producto] = (resumen[producto] || 0) + cantidad;
         }
       }
       return resumen;
     }
 
-  // formatoSubOrdenesCombinadas(): string {
-  //   const totalTacos: Record<string, number> = {};
-  //   const totalEntamalados: Record<string, number> = {};
-  //   const totalBebidas: Record<string, number> = {};
-  //   let total = 0;
-
-  //   const subOrdenes = this._subOrdenes;
-
-  //   for (const subOrden of subOrdenes) {
-  //     // Sumar tacos
-  //     for (const tipo in subOrden.tacos) {
-  //       totalTacos[tipo] = (totalTacos[tipo] || 0) + subOrden.tacos[tipo];
-  //     }
-
-  //     // Sumar entamalados
-  //     for (const tipo in subOrden.entamalados) {
-  //       totalEntamalados[tipo] = (totalEntamalados[tipo] || 0) + subOrden.entamalados[tipo];
-  //     }
-
-  //     // Sumar bebidas
-  //     for (const tipo in subOrden.bebidas) {
-  //       totalBebidas[tipo] = (totalBebidas[tipo] || 0) + subOrden.bebidas[tipo];
-  //     }
-
-  //     // Sumar total
-  //     total += subOrden.getTotal();
-  //   }
-
-  //   // Usamos cualquier suborden para reutilizar sus métodos de formateo
-  //   const subOrdenRef = subOrdenes[0];
-
-  //   const partes = [
-  //     subOrdenRef['formatoTacos'](totalTacos),
-  //     subOrdenRef['formatoEntamalados'](totalEntamalados),
-  //     subOrdenRef['formatoBebidas'](totalBebidas),
-  //     `Total: $${total}`
-  //   ].filter(p => p !== '' && p !== 'Total: $0');
-
-  //   return partes.join(' | ');
-  // }
-
   formatoSubOrdenesCombinadas(): string {
-  const totalTacos: Record<string, number> = {};
-  const totalEntamalados: Record<string, number> = {};
-  const totalBebidas: Record<string, number> = {};
-  let total = 0;
+    const totalTacos: Record<string, number> = {};
+    const totalEntamalados: Record<string, number> = {};
+    const totalBebidas: Record<string, number> = {};
+    let total = 0;
 
-  // Filtra subórdenes válidas
-  const subOrdenesValidas = this._subOrdenes.filter(s =>
-    s &&
-    typeof s.formatoTacos === 'function' &&
-    typeof s.formatoEntamalados === 'function' &&
-    typeof s.formatoBebidas === 'function' &&
-    typeof s.getTotal === 'function'
-  );
+    // Filtra subórdenes válidas
+    const subOrdenesValidas = this._subOrdenes.filter(s =>
+      s &&
+      typeof s.formatoTacos === 'function' &&
+      typeof s.formatoEntamalados === 'function' &&
+      typeof s.formatoBebidas === 'function' &&
+      typeof s.getTotal === 'function'
+    );
 
-  for (const subOrden of subOrdenesValidas) {
-    // Sumar tacos
-    for (const tipo in subOrden.tacos) {
-      totalTacos[tipo] = (totalTacos[tipo] || 0) + subOrden.tacos[tipo];
+    for (const subOrden of subOrdenesValidas) {
+      for (const tipo in subOrden.tacos) {
+        totalTacos[tipo] = (totalTacos[tipo] || 0) + subOrden.tacos[tipo];
+      }
+
+      for (const tipo in subOrden.entamalados) {
+        totalEntamalados[tipo] = (totalEntamalados[tipo] || 0) + subOrden.entamalados[tipo];
+      }
+
+      for (const tipo in subOrden.bebidas) {
+        totalBebidas[tipo] = (totalBebidas[tipo] || 0) + subOrden.bebidas[tipo];
+      }
+
+      total += subOrden.getTotal();
     }
 
-    // Sumar entamalados
-    for (const tipo in subOrden.entamalados) {
-      totalEntamalados[tipo] = (totalEntamalados[tipo] || 0) + subOrden.entamalados[tipo];
+    // Usar la primera suborden válida como referencia
+    const subOrdenRef = subOrdenesValidas[0];
+
+    if (!subOrdenRef) {
+      return `Total: $${total}`;
     }
 
-    // Sumar bebidas
-    for (const tipo in subOrden.bebidas) {
-      totalBebidas[tipo] = (totalBebidas[tipo] || 0) + subOrden.bebidas[tipo];
-    }
+    const partes = [
+      subOrdenRef.formatoTacos(totalTacos),
+      subOrdenRef.formatoEntamalados(totalEntamalados),
+      subOrdenRef.formatoBebidas(totalBebidas),
+      `Total: $${total}`
+    ].filter(p => p !== '' && p !== 'Total: $0');
 
-    // Sumar total
-    total += subOrden.getTotal();
+    return partes.join(' | ');
   }
-
-  // Usar la primera suborden válida como referencia
-  const subOrdenRef = subOrdenesValidas[0];
-
-  if (!subOrdenRef) {
-    return `Total: $${total}`; // Evita errores si no hay ninguna suborden válida
-  }
-
-  const partes = [
-    subOrdenRef.formatoTacos(totalTacos),
-    subOrdenRef.formatoEntamalados(totalEntamalados),
-    subOrdenRef.formatoBebidas(totalBebidas),
-    `Total: $${total}`
-  ].filter(p => p !== '' && p !== 'Total: $0');
-
-  return partes.join(' | ');
-}
 
 
 
@@ -224,8 +171,6 @@ export class Orden {
     const orden = new Orden({ mesa: obj._mesa ?? obj.noMesa, nombreCliente: obj._nombreCliente ?? obj.nombreCliente, fecha: fecha});
     orden.id = obj.id?.toString() ?? '';
 
-
-    // Leer subórdenes correctamente
     const subOrdenesJson = obj._subOrdenes;
 
     orden.subOrdenes = Array.isArray(subOrdenesJson)
@@ -238,35 +183,20 @@ export class Orden {
     return orden;
   }
 
-
-  // public toJSON() {
-  //   return {
-  //     id: this.id ?? null,
-  //     _mesa: this._mesa,
-  //     _nombreCliente: this._nombreCliente,
-  //     // _fecha: Timestamp.fromDate(this._fecha),
-  //     _estadoOrden: this.estadoOrden,
-  //     _subOrdenes: this._subOrdenes.map(sub => sub.toJSON()),
-  //     _especificaciones: this._especificaciones
-  //   };
-  // }
-
   toJSON() {
-  const json: any = {
-    id: this.id ?? null,
-    _estadoOrden: this.estadoOrden,
-    _subOrdenes: this._subOrdenes.map(sub => sub.toJSON()),
-    _especificaciones: this._especificaciones,
-    _nombreCliente: this._nombreCliente ?? ''
-  };
+    const json: any = {
+      id: this.id ?? null,
+      _estadoOrden: this.estadoOrden,
+      _subOrdenes: this._subOrdenes.map(sub => sub.toJSON()),
+      _especificaciones: this._especificaciones,
+      _nombreCliente: this._nombreCliente ?? ''
+    };
 
-  // Solo incluir _mesa si tiene un valor válido
-  if (this._mesa !== undefined) {
-    json._mesa = this._mesa;
+    // Solo incluir _mesa si tiene un valor válido
+    if (this._mesa !== undefined) {
+      json._mesa = this._mesa;
+    }
+
+    return json;
   }
-
-  return json;
-}
-
-
 }

@@ -1,8 +1,8 @@
 // gestorOrdenesFirestore.ts
 import {collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, query, orderBy, where, getDocs} from "firebase/firestore";
-import {db} from "./app"; // Asegúrate de que la ruta sea correcta
+import {db} from "./app";
 import {Orden} from "./orden";
-import {SubOrden} from "./subOrden"; // Asegúrate de que la ruta sea correcta
+import {SubOrden} from "./subOrden";
 
 export class GestorOrdenesFirestore {
   private static readonly coleccion = "ordenes";
@@ -126,7 +126,7 @@ export class GestorOrdenesFirestore {
     const ordenRef = doc(db, this.coleccion, idOrden);
 
     await updateDoc(ordenRef, {
-      _estadoOrden: true // <-- así se marca como pagada
+      _estadoOrden: true
     });
 
     console.log(`Orden ${idOrden} marcada como pagada`);

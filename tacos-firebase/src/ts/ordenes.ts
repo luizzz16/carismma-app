@@ -170,293 +170,79 @@ export class Ordenes {
 
     ////////////////////////////////////////////////////////////////////////////////////
     //Método para crear una nueva orden
-    async crearOrden() {
-      const noMesa = Number(this._htmlNumeroMesa.value);
-      const nCliente = this._htmlNombreCliente.value.trim();
-      const mesaExistente = this._ordenes.some(orden => orden.noMesa === noMesa);
-        if (isNaN(noMesa) || noMesa <= 0 || mesaExistente || !Number.isInteger(noMesa)) {
-          alert("Número de mesa inválido");
-          return;
-        }
-        if (!this._htmlFechaOrden.value) {
-          alert("Fecha de orden es requerida");
-          return;
-        }
-      const fecha = new Date(this._htmlFechaOrden.value);
-        if (isNaN(fecha.getTime())) {
-          console.error("Fecha inválida");
-          return;
-        }
-      const nuevaOrden = new Orden({ mesa: noMesa, nombreCliente: nCliente, fecha: fecha });
-      this._ordenes.push(nuevaOrden);
-      this.agregarOrdenSelector();
-      this._htmlSelectMesa.value = noMesa.toString();
-      this._htmlListaSubOrdenes.innerHTML = '';
-      // nuevaOrden.especificaciones = this._htmlEspecificaciones.value;
-      this.btnEstadoOrden(nuevaOrden);
-      this.mostrarSubOrdenes(nuevaOrden);
-      this.mostrarEspecificaciones(nuevaOrden);
-      this._htmlNombreCliente.value = ''; // Limpiar el campo de nombre del cliente
-
-      // Guardar en Firestore (con await por seguridad)
-      try {
-        await GestorOrdenesFirestore.guardarOrden(nuevaOrden);
-      } catch (error) {
-        console.error("Error al guardar la orden en Firestore:", error);
-        alert("Hubo un error al guardar la orden. Intenta nuevamente.");
+  async crearOrden() {
+    const noMesa = Number(this._htmlNumeroMesa.value);
+    const nCliente = this._htmlNombreCliente.value.trim();
+    const mesaExistente = this._ordenes.some(orden => orden.noMesa === noMesa);
+      if (isNaN(noMesa) || noMesa <= 0 || mesaExistente || !Number.isInteger(noMesa)) {
+        alert("Número de mesa inválido");
+        return;
       }
-      // GestorOrdenesFirestore.guardarOrden(nuevaOrden);
+      if (!this._htmlFechaOrden.value) {
+        alert("Fecha de orden es requerida");
+        return;
+      }
+
+    const valorFecha = this._htmlFechaOrden.value;
+
+    if (!valorFecha) {
+      alert("Por favor, selecciona una fecha.");
+      return;
     }
 
-  // async crearOrden() {
-  //   const noMesa = Number(this._htmlNumeroMesa.value);
-  //   const nombreCliente = this._htmlNombreCliente.value?.trim();
-  //   const fechaInput = this._htmlFechaOrden.value;
+    // Dividir la cadena "YYYY-MM-DD" en partes
+    const [anioStr, mesStr, diaStr] = valorFecha.split("-");
 
-  //   // Validación de fecha
-  //   if (!fechaInput) {
-  //     alert("Fecha de orden es requerida");
-  //     return;
-  //   }
+    if (!anioStr || !mesStr || !diaStr) {
+      alert("Fecha inválida");
+      return;
+    }
 
-  //   const fecha = new Date(fechaInput);
-  //   if (isNaN(fecha.getTime())) {
-  //     alert("Fecha inválida");
-  //     return;
-  //   }
+    // Crear la fecha con constructor local (mes es 0-based)
+    const fecha = new Date(Number(anioStr), Number(mesStr) - 1, Number(diaStr));
 
-  //   let nuevaOrden: Orden;
+    // Crear fecha de hoy a medianoche local
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
 
-  //   if (nombreCliente) {
-  //     // Es un pedido para llevar
-  //     nuevaOrden = new Orden({ nombreCliente, fecha });
-  //   } else if (!isNaN(noMesa) && noMesa > 0 && Number.isInteger(noMesa)) {
-  //     // Es un pedido en mesa
-  //     const mesaExistente = this._ordenes.some(orden => orden.noMesa === noMesa);
-  //     if (mesaExistente) {
-  //       alert("La mesa ya tiene una orden activa.");
-  //       return;
-  //     }
-  //     nuevaOrden = new Orden({ mesa: noMesa, fecha });
-  //   } else {
-  //     alert("Debes ingresar un número de mesa válido o un nombre de cliente para llevar.");
-  //     return;
-  //   }
+    // Normalizar fecha seleccionada a medianoche (por si acaso)
+    fecha.setHours(0, 0, 0, 0);
 
-  //   this._ordenes.push(nuevaOrden);
+    // Validar fecha
+    if (isNaN(fecha.getTime())) {
+      alert("Fecha inválida");
+      return;
+    }
 
-  //   // Mostrar en el selector correspondiente
-  //   if (nuevaOrden.noMesa !== undefined) {
-  //     this.agregarOrdenSelector(); // Para mesas
-  //     this._htmlSelectMesa.value = noMesa.toString();
-  //   } else {
-  //     this.llenarSelectClientes(); // Para llevar
-  //     this._htmlSelectCliente.value = nombreCliente;
-  //   }
+    if (fecha.getTime() < hoy.getTime()) {
+      alert("La fecha no puede ser pasada");
+      return;
+    }
 
-  //   this._htmlListaSubOrdenes.innerHTML = '';
-  //   this.btnEstadoOrden(nuevaOrden);
-  //   this.mostrarSubOrdenes(nuevaOrden);
-  //   this.mostrarEspecificaciones(nuevaOrden);
-
-  //   // Guardar en Firestore
-  //   try {
-  //     await GestorOrdenesFirestore.guardarOrden(nuevaOrden);
-  //   } catch (error) {
-  //     console.error("Error al guardar la orden en Firestore:", error);
-  //     alert("Hubo un error al guardar la orden. Intenta nuevamente.");
-  //   }
-  // }
-
-  // async crearOrden() {
-  //   const noMesa = Number(this._htmlNumeroMesa.value);
-  //   const nombreCliente = this._htmlNombreCliente.value?.trim();
-  //   const fechaInput = this._htmlFechaOrden.value;
-
-  //   if (!fechaInput) {
-  //     alert("Fecha de orden es requerida");
-  //     return;
-  //   }
-
-  //   const fecha = new Date(fechaInput);
-  //   if (isNaN(fecha.getTime())) {
-  //     alert("Fecha inválida");
-  //     return;
-  //   }
-
-  //   let nuevaOrden: Orden;
-
-  //   if (nombreCliente) {
-  //     nuevaOrden = new Orden({ nombreCliente, fecha });
-  //   } else if (!isNaN(noMesa) && noMesa > 0 && Number.isInteger(noMesa)) {
-  //     const mesaExistente = this._ordenes.some(orden => orden.noMesa === noMesa);
-  //     if (mesaExistente) {
-  //       alert("La mesa ya tiene una orden activa.");
-  //       return;
-  //     }
-  //     nuevaOrden = new Orden({ mesa: noMesa, fecha });
-  //   } else {
-  //     alert("Debes ingresar un número de mesa válido o un nombre de cliente para llevar.");
-  //     return;
-  //   }
-
-  //   this._ordenes.push(nuevaOrden);
-
-  //   if (nuevaOrden.noMesa !== undefined) {
-  //     this.agregarOrdenSelector(); // Para mesas
-  //     this._htmlSelectMesa.value = noMesa.toString();
-  //   } else {
-  //     // Agregar directamente al select
-  //     const option = document.createElement("option");
-  //     option.value = nuevaOrden.nombreCliente!;
-  //     option.textContent = nuevaOrden.nombreCliente!;
-  //     this._htmlSelectCliente.appendChild(option);
-  //     this._htmlSelectCliente.value = nuevaOrden.nombreCliente!;
-  //   }
-
-  //   this._htmlListaSubOrdenes.innerHTML = '';
-  //   this.btnEstadoOrden(nuevaOrden);
-  //   this.mostrarSubOrdenes(nuevaOrden);
-  //   this.mostrarEspecificaciones(nuevaOrden);
+    console.log("Fecha válida:", fecha.toLocaleDateString());
 
 
 
-  //   try {
-  //     await GestorOrdenesFirestore.guardarOrden(nuevaOrden);
-  //   } catch (error) {
-  //     console.error("Error al guardar la orden en Firestore:", error);
-  //     alert("Hubo un error al guardar la orden. Intenta nuevamente.");
-  //   }
-  // }
+    const nuevaOrden = new Orden({ mesa: noMesa, nombreCliente: nCliente, fecha: fecha });
+    this._ordenes.push(nuevaOrden);
+    this.agregarOrdenSelector();
+    this._htmlSelectMesa.value = noMesa.toString();
+    this._htmlListaSubOrdenes.innerHTML = '';
+    // nuevaOrden.especificaciones = this._htmlEspecificaciones.value;
+    this.btnEstadoOrden(nuevaOrden);
+    this.mostrarSubOrdenes(nuevaOrden);
+    this.mostrarEspecificaciones(nuevaOrden);
+    this._htmlNombreCliente.value = ''; // Limpiar el campo de nombre del cliente
 
-
-//   private escucharOrdenesFirestore() {
-//   GestorOrdenesFirestore.escucharOrdenes((ordenesDesdeFirestore) => {
-//     this._ordenes = ordenesDesdeFirestore;
-
-//     const ordenesConMesa = this._ordenes.filter(o => o.noMesa !== undefined);
-//     const mesaSeleccionada = this._htmlSelectMesa.value;
-//     const clienteSeleccionado = this._htmlSelectCliente?.value;
-
-//     if (ordenesConMesa.length > 0) {
-//       // Modo selector por mesa
-//       const ordenSeleccionada = this._ordenes.find(o => o.noMesa?.toString() === mesaSeleccionada);
-
-//       this.agregarOrdenSelector(mesaSeleccionada);
-
-//       if (ordenSeleccionada) {
-//         this._htmlSelectMesa.value = ordenSeleccionada.noMesa?.toString() ?? '';
-//         this.btnEstadoOrden(ordenSeleccionada);
-//         this.mostrarSubOrdenes(ordenSeleccionada);
-//         this.mostrarEspecificaciones(ordenSeleccionada);
-//       } else {
-//         const ultimaOrden = ordenesConMesa[ordenesConMesa.length - 1];
-//         this._htmlSelectMesa.value = ultimaOrden.noMesa?.toString() ?? '';
-//         this.btnEstadoOrden(ultimaOrden);
-//         this.mostrarSubOrdenes(ultimaOrden);
-//         this.mostrarEspecificaciones(ultimaOrden);
-//       }
-
-//       this.llenarSelectClientes(); // También actualiza el select de clientes
-//     } else {
-//       // Modo selector por cliente
-//       this.llenarSelectClientes(clienteSeleccionado);
-
-//       const ordenSeleccionada = this._ordenes.find(o => o.nombreCliente?.trim() === clienteSeleccionado);
-
-//       if (ordenSeleccionada) {
-//         this._htmlSelectCliente.value = ordenSeleccionada.nombreCliente?.trim() ?? '';
-//         this.btnEstadoOrden(ordenSeleccionada);
-//         this.mostrarSubOrdenes(ordenSeleccionada);
-//         this.mostrarEspecificaciones(ordenSeleccionada);
-//       } else if (this._ordenes.length > 0) {
-//         const ultimaOrden = this._ordenes[this._ordenes.length - 1];
-//         this._htmlSelectCliente.value = ultimaOrden.nombreCliente?.trim() ?? '';
-//         this.btnEstadoOrden(ultimaOrden);
-//         this.mostrarSubOrdenes(ultimaOrden);
-//         this.mostrarEspecificaciones(ultimaOrden);
-//       } else {
-//         // No hay órdenes en absoluto
-//         this._htmlSelectCliente.value = '';
-//         this._htmlListaSubOrdenes.innerHTML = '';
-//         this._htmlFormatoOrden.innerHTML = '';
-//         this._htmlEspecificaciones.value = '';
-//       }
-
-//       this._htmlSelectMesa.innerHTML = ''; // Limpia el selector de mesa si no se usa
-//     }
-//   });
-// }
-
-
-  // private llenarSelectClientes(clienteSeleccionado?: string): void {
-  //   if (!this._htmlSelectCliente) return;
-
-  //   const nombresUnicos = Array.from(
-  //     new Set(
-  //       this._ordenes
-  //         .map(o => o.nombreCliente?.trim() ?? '')
-  //         .filter(nombre => nombre !== '')
-  //     )
-  //   ).sort();
-
-  //   this._htmlSelectCliente.innerHTML = '';
-
-  //   for (const nombre of nombresUnicos) {
-  //     const option = document.createElement('option');
-  //     option.value = nombre;
-  //     option.textContent = nombre || 'Cliente sin nombre';
-  //     if (clienteSeleccionado && clienteSeleccionado === nombre) {
-  //       option.selected = true;
-  //     }
-  //     this._htmlSelectCliente.appendChild(option);
-  //   }
-
-  //   this._htmlNombreCliente.value = '';
-  //   this._htmlFechaOrden.value = '';
-  // }
-
-//   private escucharOrdenesFirestore() {
-//   GestorOrdenesFirestore.escucharOrdenes((ordenesDesdeFirestore) => {
-//     this._ordenes = ordenesDesdeFirestore;
-
-//     // Filtra solo las órdenes que tienen número de mesa
-//     const ordenesConMesa = this._ordenes.filter(o => o.noMesa !== undefined);
-
-//     if (ordenesConMesa.length > 0) {
-//       // Llena el selector de mesas visualmente
-//       this.agregarOrdenSelector(); // Asegúrate de que este método existe
-
-//       // Obtiene la mesa seleccionada actualmente
-//       const mesaSeleccionada = this._htmlSelectMesa.value;
-
-//       // Busca la orden con esa mesa
-//       const ordenSeleccionada = this._ordenes.find(
-//         o => o.noMesa?.toString() === mesaSeleccionada
-//       );
-
-//       if (ordenSeleccionada) {
-//         this._htmlSelectMesa.value = ordenSeleccionada.noMesa?.toString() ?? '';
-//         this.btnEstadoOrden(ordenSeleccionada);
-//         this.mostrarSubOrdenes(ordenSeleccionada);
-//         this.mostrarEspecificaciones(ordenSeleccionada);
-//       } else {
-//         // Si no hay una orden con esa mesa seleccionada, selecciona la última con mesa
-//         const ultimaOrden = ordenesConMesa[ordenesConMesa.length - 1];
-//         this._htmlSelectMesa.value = ultimaOrden.noMesa?.toString() ?? '';
-//         this.btnEstadoOrden(ultimaOrden);
-//         this.mostrarSubOrdenes(ultimaOrden);
-//         this.mostrarEspecificaciones(ultimaOrden);
-//       }
-//     } else {
-//       // No hay órdenes con número de mesa
-//       this._htmlSelectMesa.innerHTML = '';
-//       this._htmlListaSubOrdenes.innerHTML = '';
-//       this._htmlFormatoOrden.innerHTML = '';
-//       this._htmlEspecificaciones.value = '';
-//     }
-//   });
-// }
+    // Guardar en Firestore (con await por seguridad)
+    try {
+      await GestorOrdenesFirestore.guardarOrden(nuevaOrden);
+    } catch (error) {
+      console.error("Error al guardar la orden en Firestore:", error);
+      alert("Hubo un error al guardar la orden. Intenta nuevamente.");
+    }
+    // GestorOrdenesFirestore.guardarOrden(nuevaOrden);
+  }
 
   private escucharOrdenesFirestore() {
     GestorOrdenesFirestore.escucharOrdenes((ordenesDesdeFirestore) => {
@@ -497,68 +283,44 @@ export class Ordenes {
 
 
   private agregarOrdenSelector(mesaSeleccionada?: string): void {
-  this._htmlSelectMesa.innerHTML = '';
+    this._htmlSelectMesa.innerHTML = '';
 
-  // Para evitar órdenes duplicadas por número de mesa
-  const ordenesPorMesa: Record<number, Orden> = {};
+    // Para evitar órdenes duplicadas por número de mesa
+    const ordenesPorMesa: Record<number, Orden> = {};
 
-  for (const orden of this._ordenes) {
-    if (orden.noMesa !== undefined && !(orden.noMesa in ordenesPorMesa)) {
-      ordenesPorMesa[orden.noMesa] = orden;
+    for (const orden of this._ordenes) {
+      if (orden.noMesa !== undefined && !(orden.noMesa in ordenesPorMesa)) {
+        ordenesPorMesa[orden.noMesa] = orden;
+      }
     }
+
+    // Recorrer y agregar las opciones al <select>
+    for (const noMesa in ordenesPorMesa) {
+      const orden = ordenesPorMesa[+noMesa];
+
+      const option = document.createElement('option');
+      option.value = noMesa;
+
+      // Formato dinámico del texto de la opción
+      if (orden.nombreCliente && orden.nombreCliente.trim() !== '') {
+        option.textContent = `Orden para llevar ${noMesa} - ${orden.nombreCliente.trim()}`;
+      } else {
+        option.textContent = `Mesa ${noMesa}`;
+      }
+
+      // Mantener selección si aplica
+      if (mesaSeleccionada && mesaSeleccionada === noMesa) {
+        option.selected = true;
+      }
+
+      this._htmlSelectMesa.appendChild(option);
+    }
+
+    // Limpiar campos del formulario
+    this._htmlNumeroMesa.value = '';
+    this._htmlFechaOrden.value = '';
+    this._htmlNombreCliente.value = ''; // Usa .value porque es un input
   }
-
-  // Recorrer y agregar las opciones al <select>
-  for (const noMesa in ordenesPorMesa) {
-    const orden = ordenesPorMesa[+noMesa];
-
-    const option = document.createElement('option');
-    option.value = noMesa;
-
-    // Formato dinámico del texto de la opción
-    if (orden.nombreCliente && orden.nombreCliente.trim() !== '') {
-      option.textContent = `Orden para llevar ${noMesa} - ${orden.nombreCliente.trim()}`;
-    } else {
-      option.textContent = `Mesa ${noMesa}`;
-    }
-
-    // Mantener selección si aplica
-    if (mesaSeleccionada && mesaSeleccionada === noMesa) {
-      option.selected = true;
-    }
-
-    this._htmlSelectMesa.appendChild(option);
-  }
-
-  // Limpiar campos del formulario
-  this._htmlNumeroMesa.value = '';
-  this._htmlFechaOrden.value = '';
-  this._htmlNombreCliente.value = ''; // Usa .value porque es un input
-}
-
-
-  //   private agregarOrdenSelector(mesaSeleccionada?: string): void {
-  //   this._htmlSelectMesa.innerHTML = '';
-
-  //   const ordenesConMesa = this._ordenes.filter(o => o.noMesa !== undefined && o.nombreCliente == undefined);
-  //   const mesasUnicas = Array.from(new Set(ordenesConMesa.map(o => o.noMesa)));
-
-  //   for (const mesa of mesasUnicas) {
-  //     const option = document.createElement('option');
-  //     option.value = mesa?.toString() ?? '';
-  //     option.textContent = `Mesa ${mesa}`;
-  //     if (mesaSeleccionada && mesaSeleccionada === mesa?.toString()) {
-  //       option.selected = true;
-  //     }
-  //     this._htmlSelectMesa.appendChild(option);
-  //   }
-
-  //   this._htmlNumeroMesa.value = '';
-  //   this._htmlFechaOrden.value = '';
-  //   this._htmlNombreCliente.innerHTML = '';
-  // } 
-
-
 
   private mostrarEspecificaciones(orden: Orden) {
     this._htmlEspecificaciones.value = '';
@@ -566,29 +328,7 @@ export class Ordenes {
   }
 
 
-//   private agregarOrdenSelector(mesaSeleccionada?: string): void {
-//   this._htmlSelectMesa.innerHTML = '';
-
-//   const ordenesConMesa = this._ordenes.filter(o => o.noMesa !== undefined);
-
-//   const mesasUnicas = Array.from(new Set(ordenesConMesa.map(o => o.noMesa)));
-
-//   for (const mesa of mesasUnicas) {
-//     const option = document.createElement('option');
-//     option.value = mesa?.toString() ?? '';
-//     option.textContent = `Mesa ${mesa}`;
-//     if (mesaSeleccionada && mesaSeleccionada === mesa?.toString()) {
-//       option.selected = true;
-//     }
-//     this._htmlSelectMesa.appendChild(option);
-//   }
-
-//   this._htmlNumeroMesa.value = '';
-//   this._htmlFechaOrden.value = '';
-// }
-
-
-    ////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
     async crearSubOrden() {
       const tacos = {
         'Tacos de Carne de puerco': this.getSafeValue(this._htmlPuerco),
@@ -623,8 +363,9 @@ export class Ordenes {
 
       let contador = totalBebidas + totalEntamalados + totalTacos;
 
-      if (contador <= 0) {
-        alert("No se ha agregado nada a la suborden");
+      if (contador <= 0 || contador !== Math.floor(contador)) {
+        alert("No se ha agregado nada a la suborden, agrega numeros enteros");
+        this.limpiarCampos();
         return;
       }
 
@@ -661,18 +402,18 @@ export class Ordenes {
 
 
     ////////////////////////////////////////////////////////////////////////////////////
-    private limpiarCampos(): void {
+  private limpiarCampos(): void {
     const inputs = document.querySelectorAll<HTMLInputElement>('input[type="number"]');
     inputs.forEach(input => input.value = '');
-    }
+  }
 
-    private getSafeValue(input: HTMLInputElement): number {
+  private getSafeValue(input: HTMLInputElement): number {
       return isNaN(input.valueAsNumber) ? 0 : input.valueAsNumber;
-    }
+  }
 
     ////////////////////////////////////////////////////////////////////////////////////
     // Método para mostrar el estado de la orden y permitir marcarla como pagada
-    private btnEstadoOrden(orden: Orden) {
+  private btnEstadoOrden(orden: Orden) {
     this._htmlFormatoOrden.innerHTML = '';
     let fecha = this.parseFechaLocal(orden.fecha.toISOString().split('T')[0]); // Asegúrate de que la fecha esté en formato local
 
@@ -775,7 +516,7 @@ export class Ordenes {
 
     ////////////////////////////////////////////////////////////////////////////////////
     // Método para eliminar una orden
-    private eliminarOrden(orden: Orden) {
+  private eliminarOrden(orden: Orden) {
       this._ordenes = this._ordenes.filter(o => o.noMesa !== orden.noMesa);
       this.actualizarSelectMesas();
     }

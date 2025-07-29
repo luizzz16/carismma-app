@@ -20,7 +20,5 @@ export const db = getFirestore(app);
 document.addEventListener('DOMContentLoaded', () => {
   const gestor = new GestorVentas();
   new Ordenes(gestor);
-
-  // Aquí puedes añadir: escucharOrdenesEnTiempoReal(gestor);
 });
 
