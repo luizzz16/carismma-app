@@ -107,6 +107,35 @@ section.seccion {
   padding-left: 1.5rem;
 }
 
+#login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 10vh; /* altura completa de la ventana */
+}
+
+#btnLogin {
+  padding: 1rem 2rem;
+  font-weight: bold;
+  background-color: orange;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+#contenido-app {
+  display: none;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+
 @media (max-width: 300px) {
   nav {
     flex-direction: column;

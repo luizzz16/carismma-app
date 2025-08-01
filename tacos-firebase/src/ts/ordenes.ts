@@ -31,6 +31,7 @@ export class Ordenes {
   private _htmlAguaSG: HTMLInputElement;
   private _htmlAguaSCH: HTMLInputElement;
   private _htmlRefresco: HTMLInputElement;
+  private _htmlRefresco600ml: HTMLInputElement;
   private _htmlCafe: HTMLInputElement;
   private _htmlAguaBG: HTMLInputElement;
   private _htmlAguaBCH: HTMLInputElement;
@@ -77,6 +78,7 @@ export class Ordenes {
     this._htmlAguaSG = document.getElementById("aguaSG") as HTMLInputElement;
     this._htmlAguaSCH = document.getElementById("aguaSCH") as HTMLInputElement;
     this._htmlRefresco = document.getElementById("refresco") as HTMLInputElement;
+    this._htmlRefresco600ml = document.getElementById("refresco600ml") as HTMLInputElement;
     this._htmlCafe = document.getElementById("cafe") as HTMLInputElement;
     this._htmlAguaBG = document.getElementById("aguaBG") as HTMLInputElement;
     this._htmlAguaBCH = document.getElementById("aguaBCH") as HTMLInputElement;
@@ -348,6 +350,7 @@ export class Ordenes {
         'Agua de sabor G': this.getSafeValue(this._htmlAguaSG),
         'Agua de sabor CH': this.getSafeValue(this._htmlAguaSCH),
         'Refresco': this.getSafeValue(this._htmlRefresco),
+        'Refresco 600 ml': this.getSafeValue(this._htmlRefresco600ml),
         'Café': this.getSafeValue(this._htmlCafe),
         'Agua enbotellada G': this.getSafeValue(this._htmlAguaBG),
         'Agua enbotellada CH': this.getSafeValue(this._htmlAguaBCH)

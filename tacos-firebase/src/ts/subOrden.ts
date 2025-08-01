@@ -76,6 +76,7 @@ export class SubOrden {
       'Agua de sabor G': 25,
       'Agua de sabor CH': 15,
       'Refresco': 25,
+      'Refresco 600 ml': 26,
       'Café': 25,
       'Agua enbotellada G': 15,
       'Agua enbotellada CH': 10
@@ -171,6 +172,7 @@ export class SubOrden {
       'Agua de sabor G': 'ASG',
       'Agua de sabor CH': 'ASCH',
       'Refresco': 'REF',
+      'Refresco 600 ml': 'REF600ml',
       'Café': 'CAF',
       'Agua enbotellada G': 'ABG',
       'Agua enbotellada CH': 'ABCH'
