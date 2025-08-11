@@ -1,10 +1,10 @@
-import { GestorVentas } from './gestorVentas';
-import { Administrar } from './administrar';
+// import { GestorVentas } from './gestorVentas';
+// import { Administrar } from './administrar';
 
-document.addEventListener('DOMContentLoaded', () => {
-  const gestor = new GestorVentas();
-  new Administrar(gestor);
-});
+// document.addEventListener('DOMContentLoaded', () => {
+//   const gestor = new GestorVentas();
+//   new Administrar(gestor);
+// });
 
 // import { getDoc, doc } from "firebase/firestore";
 // import { db } from "./app"; // Asegúrate de tener esto configurado
@@ -96,20 +96,24 @@ document.addEventListener('DOMContentLoaded', () => {
 //   });
 // });
 
-// import { getDoc, doc } from "firebase/firestore";
-// import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
-// import { auth, db, provider } from "./app";
-// import { GestorVentas } from "./gestorVentas";
-// import { Administrar } from "./administrar";
+import { getDoc, doc } from "firebase/firestore";
+import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
+import { auth, db, provider } from "./app";
+import { GestorVentas } from "./gestorVentas";
+import { Administrar } from "./administrar";
 
-// async function validarAccesoAdministrador(email: string): Promise<boolean> {
-//   const docRef = doc(db, "usuariosAdministradores", email);
-//   const docSnap = await getDoc(docRef);
-//   return docSnap.exists(); // Solo importa que exista
-// }
+async function validarAccesoAdministrador(email: string): Promise<boolean> {
+  const docRef = doc(db, "usuariosAdministradores", email);
+  const docSnap = await getDoc(docRef);
+  return docSnap.exists(); // Solo importa que exista
+}
 
-// // Iniciar sesión con Google
+// Iniciar sesión con Google
 // async function login() {
+
+//   const btnLogin = document.getElementById("btnLogin") as HTMLButtonElement;
+//   btnLogin.disabled = true;
+
 //   try {
 //     const result = await signInWithPopup(auth, provider);
 //     const email = result.user.email!;
@@ -125,42 +129,65 @@ document.addEventListener('DOMContentLoaded', () => {
 //   }
 // }
 
-// onAuthStateChanged(auth, async (user) => {
-//   const loginContainer = document.getElementById("login-container")!;
-//   const contenidoApp = document.getElementById("contenido-app")!;
+async function login() {
+  const btnLogin = document.getElementById("btnLogin") as HTMLButtonElement;
+  btnLogin.disabled = true;
 
-//   if (user) {
-//     const autorizado = await validarAccesoAdministrador(user.email!);
-//     if (autorizado) {
-//       loginContainer.style.display = "none";
-//       contenidoApp.style.display = "block";
-//       iniciarApp();
-//     } else {
-//       alert("No tienes permisos de administrador.");
-//       await signOut(auth);
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const email = result.user.email!;
+    const autorizado = await validarAccesoAdministrador(email);
 
-//       // Aquí ocultamos todo y salimos para no ejecutar nada más
-//       loginContainer.style.display = "flex";
-//       contenidoApp.style.display = "none";
-//       return;  // Detenemos ejecución
-//     }
-//   } else {
-//     loginContainer.style.display = "flex";
-//     contenidoApp.style.display = "none";
-//   }
-// });
+    if (!autorizado) {
+      alert("Este correo no tiene acceso como administrador.");
+      await signOut(auth);
+      btnLogin.disabled = false; // Reactivar botón si no está autorizado
+      return;
+    }
+
+    // Si está autorizado, no se necesita volver a activar el botón
+  } catch (error) {
+    console.log("Error en login:", error);
+    btnLogin.disabled = false; // Reactivar botón en caso de error
+  }
+}
+
+onAuthStateChanged(auth, async (user) => {
+  const loginContainer = document.getElementById("login-container")!;
+  const contenidoApp = document.getElementById("contenido-app")!;
+
+  if (user) {
+    const autorizado = await validarAccesoAdministrador(user.email!);
+    if (autorizado) {
+      loginContainer.style.display = "none";
+      contenidoApp.style.display = "block";
+      iniciarApp();
+    } else {
+      alert("No tienes permisos de administrador.");
+      await signOut(auth);
+
+      // Aquí ocultamos todo y salimos para no ejecutar nada más
+      loginContainer.style.display = "flex";
+      contenidoApp.style.display = "none";
+      return;  // Detenemos ejecución
+    }
+  } else {
+    loginContainer.style.display = "flex";
+    contenidoApp.style.display = "none";
+  }
+});
 
 
-// // Inicializa la lógica del panel de administrador
-// function iniciarApp() {
-//   const gestor = new GestorVentas();
-//   new Administrar(gestor);
-// }
+// Inicializa la lógica del panel de administrador
+function iniciarApp() {
+  const gestor = new GestorVentas();
+  new Administrar(gestor);
+}
 
-// // Evento del botón
-// document.addEventListener("DOMContentLoaded", () => {
-//   document.getElementById("btnLogin")?.addEventListener("click", login);
-// });
+// Evento del botón
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("btnLogin")?.addEventListener("click", login);
+});
 
 
 

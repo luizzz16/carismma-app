@@ -28,8 +28,10 @@ export class Ordenes {
   private _htmlEntamaladoF: HTMLInputElement;
   private _htmlEntamaladoM: HTMLInputElement;
   // Bebidas
-  private _htmlAguaSG: HTMLInputElement;
-  private _htmlAguaSCH: HTMLInputElement;
+  private _htmlAguaSGj: HTMLInputElement;
+  private _htmlAguaSGh: HTMLInputElement;
+  private _htmlAguaSCHj: HTMLInputElement;
+  private _htmlAguaSCHh: HTMLInputElement;
   private _htmlRefresco: HTMLInputElement;
   private _htmlRefresco600ml: HTMLInputElement;
   private _htmlCafe: HTMLInputElement;
@@ -39,6 +41,7 @@ export class Ordenes {
   // private _htmlOrdenesLista: HTMLUListElement;
   private _htmlespecificacionesSub: HTMLInputElement;
   private _htmlBotonSubOrden: HTMLButtonElement;
+  private _htmlCrearSubOrdenEnNuevaOrden: HTMLButtonElement;
   private _htmlBtnBuscarOrdenPagada: HTMLButtonElement;
   private _htmlFechaOrdenPagada: HTMLInputElement;
   private _htmlOrdenesPagadas: HTMLOListElement;
@@ -75,8 +78,10 @@ export class Ordenes {
     this._htmlEntamaladoM = document.getElementById("entamaladoM") as HTMLInputElement;
 
     // Bebidas
-    this._htmlAguaSG = document.getElementById("aguaSG") as HTMLInputElement;
-    this._htmlAguaSCH = document.getElementById("aguaSCH") as HTMLInputElement;
+    this._htmlAguaSGj = document.getElementById("aguaSGj") as HTMLInputElement;
+    this._htmlAguaSGh = document.getElementById("aguaSGh") as HTMLInputElement;
+    this._htmlAguaSCHj = document.getElementById("aguaSCHj") as HTMLInputElement;
+    this._htmlAguaSCHh = document.getElementById("aguaSCHh") as HTMLInputElement;
     this._htmlRefresco = document.getElementById("refresco") as HTMLInputElement;
     this._htmlRefresco600ml = document.getElementById("refresco600ml") as HTMLInputElement;
     this._htmlCafe = document.getElementById("cafe") as HTMLInputElement;
@@ -86,6 +91,7 @@ export class Ordenes {
     this._htmlespecificacionesSub = document.getElementById("especificacionesSub") as HTMLInputElement;
     // Botón para crear suborden
     this._htmlBotonSubOrden = document.getElementById("crearSubOrden") as HTMLButtonElement;
+    this._htmlCrearSubOrdenEnNuevaOrden = document.getElementById("crearSubOrdenEnNuevaOrden") as HTMLButtonElement;
 
     this._htmlFechaOrdenPagada = document.getElementById("fechaOrdenPagada") as HTMLInputElement;
     this._htmlBtnBuscarOrdenPagada = document.getElementById("btnBuscarOrdenPagada") as HTMLButtonElement;
@@ -97,6 +103,7 @@ export class Ordenes {
     this._htmlBotonOrden.addEventListener('click', () => {this.crearOrden();});
 
     this._htmlBotonSubOrden.addEventListener('click', () => {this.crearSubOrden();});
+    this._htmlCrearSubOrdenEnNuevaOrden.addEventListener('click', () => {this.crearOrdenParaLlevarYAgregarSubOrden();});
 
     this._htmlSelectMesa.addEventListener('change', () => {
       const numeroMesa = Number(this._htmlSelectMesa.value);
@@ -347,8 +354,10 @@ export class Ordenes {
       };
 
       const bebidas = {
-        'Agua de sabor G': this.getSafeValue(this._htmlAguaSG),
-        'Agua de sabor CH': this.getSafeValue(this._htmlAguaSCH),
+        'Agua de jamaica G': this.getSafeValue(this._htmlAguaSGj),
+        'Agua de horchata G': this.getSafeValue(this._htmlAguaSGh),
+        'Agua de jamaica CH': this.getSafeValue(this._htmlAguaSCHj),
+        'Agua de horchata CH': this.getSafeValue(this._htmlAguaSCHh),
         'Refresco': this.getSafeValue(this._htmlRefresco),
         'Refresco 600 ml': this.getSafeValue(this._htmlRefresco600ml),
         'Café': this.getSafeValue(this._htmlCafe),
@@ -402,6 +411,55 @@ export class Ordenes {
     }
       this.limpiarCampos();
     }
+
+    async crearOrdenParaLlevarYAgregarSubOrden() {
+  // 1. Obtener la mesa actual desde el selector
+  const mesaActual = Number(this._htmlSelectMesa.value);
+  if (isNaN(mesaActual)) {
+    alert("Número de mesa actual no válido.");
+    return;
+  }
+
+  // 2. Buscar siguiente número de mesa libre (a partir de 10, como dijiste)
+  let nuevaMesa = Math.max(10, mesaActual + 1);
+  while (this._ordenes.some(orden => orden.noMesa === nuevaMesa)) {
+    nuevaMesa++;
+  }
+
+  // 3. Crear la orden automáticamente
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  const nuevaOrden = new Orden({
+    mesa: nuevaMesa,
+    nombreCliente: `Cliente para llevar`,
+    fecha: hoy
+  });
+
+  this._ordenes.push(nuevaOrden);
+  this.agregarOrdenSelector(); // Refrescar selector
+
+  // 4. Guardar la nueva orden en Firestore
+  try {
+    await GestorOrdenesFirestore.guardarOrden(nuevaOrden);
+  } catch (error) {
+    console.error("Error al guardar la orden para llevar:", error);
+    alert("No se pudo guardar la nueva orden.");
+    return;
+  }
+
+  // 5. Establecer como seleccionada en el DOM
+  this._htmlSelectMesa.value = nuevaMesa.toString();
+  this._htmlListaSubOrdenes.innerHTML = '';
+  this.btnEstadoOrden(nuevaOrden);
+  this.mostrarSubOrdenes(nuevaOrden);
+  this.mostrarEspecificaciones(nuevaOrden);
+
+  // 6. Llamar al método que ya tienes para crear la suborden
+  await this.crearSubOrden();
+
+  alert(`Nueva orden creada para mesa ${nuevaMesa} y suborden agregada.`);
+}
 
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -566,6 +624,11 @@ export class Ordenes {
       btnEliminar.classList.add('btnEliminarSubOrden');
       btnEliminar.textContent = 'Eliminar';
 
+      const btnDuplicarSub = document.createElement('button');
+      btnDuplicarSub .type = 'button';
+      btnDuplicarSub .classList.add('btnDuplicarSubOrden');
+      btnDuplicarSub .textContent = 'Duplicar';
+
       btnEliminar.addEventListener('click', () => {
         const idx = orden.subOrdenes.indexOf(subOrden);
 
@@ -581,8 +644,35 @@ export class Ordenes {
         }
       });
 
+      btnDuplicarSub.addEventListener('click', async () => {
+        const subOrdenDuplicada = new SubOrden(
+          {...subOrden.tacos},
+          {...subOrden.entamalados},
+          {...subOrden.bebidas},
+          {especificacionesSub: subOrden.especificacionesSub}
+        );
+
+        orden.subOrdenes.push(subOrdenDuplicada);
+
+        // Actualiza en Firestore
+        if (orden.id) {
+          await GestorOrdenesFirestore.actualizarSubOrdenes(orden.id, orden.subOrdenes);
+          let nuevaOrden = await GestorOrdenesFirestore.obtenerOrdenPorId(orden.id);
+          if(nuevaOrden) {
+            this.mostrarSubOrdenes(nuevaOrden);
+            this.btnEstadoOrden(nuevaOrden);
+            alert(`Suborden duplicada en la orden de mesa ${orden.noMesa}`);
+          } else {
+            console.error("No se encontró la orden actualizada.");
+          }
+        } else {
+          console.error("La orden no tiene un ID asignado.");
+        }
+      });
+
       li.appendChild(spanTexto);
       li.appendChild(btnEliminar);
+      li.appendChild(btnDuplicarSub);
       this._htmlListaSubOrdenes.appendChild(li);
     });
   }

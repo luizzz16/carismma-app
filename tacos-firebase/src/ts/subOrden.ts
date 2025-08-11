@@ -73,8 +73,10 @@ export class SubOrden {
     };
 
     const preciosBebidas: Record<string, number> = {
-      'Agua de sabor G': 25,
-      'Agua de sabor CH': 15,
+      'Agua de jamaica G': 25,
+      'Agua de horchata G': 25,
+      'Agua de jamaica CH': 15,
+      'Agua de horchata CH': 15,
       'Refresco': 25,
       'Refresco 600 ml': 26,
       'Café': 25,
@@ -169,8 +171,10 @@ export class SubOrden {
 
   formatoBebidas(bebidas: Record<string, number>): string {
     const abreviaturas: Record<string, string> = {
-      'Agua de sabor G': 'ASG',
-      'Agua de sabor CH': 'ASCH',
+      'Agua de jamaica G': 'ASGj',
+      'Agua de horchata G': 'ASGh',
+      'Agua de jamaica CH': 'ASCHj',
+      'Agua de horchata CH': 'ASCHh',
       'Refresco': 'REF',
       'Refresco 600 ml': 'REF600ml',
       'Café': 'CAF',
