@@ -6,15 +6,19 @@ export class Orden {
   private _mesa?: number;
   private _nombreCliente?: string = '';
   private _fecha: Date;
+  private _ordenCreacionTiempo: number;
   private _estadoOrden: boolean;
   private _especificaciones: string = '';
+  private _ordenHecha: boolean;
 
   constructor(opciones: { mesa?: number; nombreCliente?: string; fecha: Date }) {
     this._mesa = opciones.mesa;
     this._nombreCliente = opciones.nombreCliente ?? '';
     this._fecha = opciones.fecha;
+    this._ordenCreacionTiempo = Date.now();
     this._subOrdenes = [];
     this._estadoOrden = false;
+    this._ordenHecha = false;
   }
 
   get noMesa() {
@@ -51,6 +55,14 @@ export class Orden {
   get nombreCliente() {
     return this._nombreCliente;
   }
+
+  set ordenHecha(hecha: boolean) {
+    this._ordenHecha = hecha;
+  }
+
+  get ordenHecha() {
+  return this._ordenHecha;
+}
 
 
   getTotal(): number {
@@ -173,11 +185,14 @@ export class Orden {
 
     const subOrdenesJson = obj._subOrdenes;
 
+    orden._ordenCreacionTiempo = obj._ordenCreacionTiempo ?? Date.now();
+
     orden.subOrdenes = Array.isArray(subOrdenesJson)
       ? subOrdenesJson.map((s: any) => SubOrden.fromJSON(s))
       : [];
 
     orden.estadoOrden = obj._estadoOrden ?? obj.estadoOrden ?? false;
+    orden._ordenHecha = obj._ordenHecha ?? false;
     orden._especificaciones = obj._especificaciones ?? obj.especificaciones ?? '';
 
     return orden;
@@ -187,6 +202,8 @@ export class Orden {
     const json: any = {
       id: this.id ?? null,
       _estadoOrden: this.estadoOrden,
+      _ordenHecha: this._ordenHecha,
+      _ordenCreacionTiempo: this._ordenCreacionTiempo,
       _subOrdenes: this._subOrdenes.map(sub => sub.toJSON()),
       _especificaciones: this._especificaciones,
       _nombreCliente: this._nombreCliente ?? ''

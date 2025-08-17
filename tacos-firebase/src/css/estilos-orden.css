@@ -94,6 +94,12 @@ section.seccion {
   border-top: 2px solid var(--verde-claro);
 }
 
+.titulo-ordenes {
+  margin-bottom: 1rem;
+  color: var(--verde);
+}
+
+
 #ordenesLista {
   margin-top: 2rem;
 }

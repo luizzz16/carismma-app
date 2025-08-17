@@ -14,6 +14,7 @@ export class GestorOrdenesFirestore {
     // ordenObj.fecha = orden.fecha;
     ordenObj.fecha = orden.fecha;
     ordenObj.fecha = orden.fecha.toISOString().split("T")[0]; // "2025-07-18"
+    ordenObj._ordenCreacionTiempo = orden['_ordenCreacionTiempo']; // Guardar tiempo de creación
     const docRef = await addDoc(collection(db, this.coleccion), ordenObj);
 
     orden.id = docRef.id; // Asignar el ID de Firestore a la orden
@@ -26,7 +27,7 @@ export class GestorOrdenesFirestore {
   static escucharOrdenes(callback: (ordenes: Orden[]) => void) {
     const ref = collection(db, this.coleccion);
     const ordenesQuery = query(ref, 
-      orderBy("fecha"),
+      orderBy("_ordenCreacionTiempo"),
       where("_estadoOrden", "==", false)); // Solo órdenes no pagadas
 
     onSnapshot(ordenesQuery, (snapshot) => {
@@ -134,6 +135,33 @@ export class GestorOrdenesFirestore {
     console.error("Error al cambiar el estado de la orden:", e);
   }
 }
+
+    // static async marcarOrdenHecha(idOrden: string) {
+    //   try {
+    //     const ordenRef = doc(db, this.coleccion, idOrden);
+
+    //     await updateDoc(ordenRef, {
+    //       _ordenHecha: true
+    //     });
+
+    //     console.log(`Orden ${idOrden} marcada como hecha`);
+    //   } catch (e) {
+    //     console.error("Error al cambiar el estado de la orden:", e);
+    //   }
+    // }
+
+  static async marcarOrdenHecha(idOrden: string, estado: boolean) {
+    try {
+      const ordenRef = doc(db, this.coleccion, idOrden);
+      await updateDoc(ordenRef, {
+        _ordenHecha: estado // guarda el valor real
+      });
+      console.log(`Orden ${idOrden} marcada como hecha: ${estado}`);
+    } catch (e) {
+      console.error("Error al cambiar el estado de la orden:", e);
+    }
+  }
+
 
   ////////////////////////////////////////////////////////////////////
   // Obtener órdenes por fecha

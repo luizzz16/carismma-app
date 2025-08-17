@@ -42,6 +42,7 @@ export class Ordenes {
   private _htmlespecificacionesSub: HTMLInputElement;
   private _htmlBotonSubOrden: HTMLButtonElement;
   private _htmlCrearSubOrdenEnNuevaOrden: HTMLButtonElement;
+  private _htmlOrdenesCreadas: HTMLOListElement;
   private _htmlBtnBuscarOrdenPagada: HTMLButtonElement;
   private _htmlFechaOrdenPagada: HTMLInputElement;
   private _htmlOrdenesPagadas: HTMLOListElement;
@@ -92,6 +93,8 @@ export class Ordenes {
     // Botón para crear suborden
     this._htmlBotonSubOrden = document.getElementById("crearSubOrden") as HTMLButtonElement;
     this._htmlCrearSubOrdenEnNuevaOrden = document.getElementById("crearSubOrdenEnNuevaOrden") as HTMLButtonElement;
+
+    this._htmlOrdenesCreadas = document.getElementById("ordenesCreadas") as HTMLOListElement;
 
     this._htmlFechaOrdenPagada = document.getElementById("fechaOrdenPagada") as HTMLInputElement;
     this._htmlBtnBuscarOrdenPagada = document.getElementById("btnBuscarOrdenPagada") as HTMLButtonElement;
@@ -199,22 +202,20 @@ export class Ordenes {
       return;
     }
 
-    // Dividir la cadena "YYYY-MM-DD" en partes
-    const [anioStr, mesStr, diaStr] = valorFecha.split("-");
+    const [añoStr, mesStr, diaStr] = valorFecha.split("-");
 
-    if (!anioStr || !mesStr || !diaStr) {
+    if (!añoStr || !mesStr || !diaStr) {
       alert("Fecha inválida");
       return;
     }
 
     // Crear la fecha con constructor local (mes es 0-based)
-    const fecha = new Date(Number(anioStr), Number(mesStr) - 1, Number(diaStr));
+    const fecha = new Date(Number(añoStr), Number(mesStr) - 1, Number(diaStr));
 
     // Crear fecha de hoy a medianoche local
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
-    // Normalizar fecha seleccionada a medianoche (por si acaso)
     fecha.setHours(0, 0, 0, 0);
 
     // Validar fecha
@@ -240,6 +241,7 @@ export class Ordenes {
     // nuevaOrden.especificaciones = this._htmlEspecificaciones.value;
     this.btnEstadoOrden(nuevaOrden);
     this.mostrarSubOrdenes(nuevaOrden);
+    this.renderListaOrdenes();
     this.mostrarEspecificaciones(nuevaOrden);
     this._htmlNombreCliente.value = ''; // Limpiar el campo de nombre del cliente
 
@@ -253,6 +255,87 @@ export class Ordenes {
     // GestorOrdenesFirestore.guardarOrden(nuevaOrden);
   }
 
+  private renderListaOrdenes(): void {
+  this._htmlOrdenesCreadas.innerHTML = '';
+
+  // Ordenar para mantener un orden visual
+  // const ordenes = [...this._ordenes].sort((a, b) => a.fecha.getTime() - b.fecha.getTime());
+  const ordenes = [...this._ordenes].sort((a, b) => a['_ordenCreacionTiempo'] - b['_ordenCreacionTiempo']);
+
+
+  for (const orden of ordenes) {
+    const li = document.createElement('li');
+
+    // Título con formato de orden
+    const header = document.createElement('div');
+    const fechaLocal = this.parseFechaLocal(orden.fecha.toISOString().split('T')[0]);
+    const titulo = document.createElement('span');
+    titulo.textContent = orden.formatoOrden(fechaLocal);
+
+    const btnPagada = document.createElement('button');
+    btnPagada.type = 'button';
+    btnPagada.textContent = 'Pagada';
+
+    const btnEliminarOrden = document.createElement('button');
+    btnEliminarOrden.textContent = 'Eliminar';
+    btnEliminarOrden.type = 'button'
+
+    // Botón "Pagada" (usa tu lógica actual)
+    btnPagada.addEventListener('click', () => {
+      this.marcarComoPagada(orden);
+      this.renderListaOrdenes();  // Re-renderizar la lista
+    });
+
+    btnEliminarOrden.addEventListener('click', () => {
+      this.eliminarOrdenCompletamente(orden);
+      this.renderListaOrdenes();  // Re-renderizar la lista
+    });
+
+
+    const btnHecho = document.createElement('button');
+      btnHecho.type = 'button';
+      btnHecho.textContent = 'Hecho';
+      btnHecho.style.color = 'white';
+      btnHecho.style.backgroundColor = orden.ordenHecha ? 'green' : 'red';
+
+      // Cuando se hace clic
+      btnHecho.addEventListener('click', async () => {
+        orden.ordenHecha = !orden.ordenHecha; // alternar
+        btnHecho.style.backgroundColor = orden.ordenHecha ? 'green' : 'red';
+        await GestorOrdenesFirestore.marcarOrdenHecha(orden.id, orden.ordenHecha); // guardar en Firestore
+      });
+
+
+    header.appendChild(titulo);
+    header.appendChild(document.createTextNode(' '));
+    header.appendChild(btnPagada);
+    header.appendChild(btnEliminarOrden);
+    header.appendChild(document.createTextNode(' '));
+    header.appendChild(btnHecho);
+
+    // Especificaciones
+    const espc = document.createElement('p');
+    espc.textContent = `Especificaciones: ${orden.especificaciones?.trim() ? orden.especificaciones : 'Sin especificaciones'}`;
+
+    // Lista de subórdenes
+    const listaSub = document.createElement('ol');
+    orden.subOrdenes.forEach((subOrden, index) => {
+      const liSub = document.createElement('li');
+      liSub.textContent = `${subOrden.especificacionesSub ?? 'Sin especificaciones'} | SubOrden ${index + 1}: ${subOrden.formatoSubOrden()}`;
+      listaSub.appendChild(liSub);
+    });
+
+    // Montaje
+    li.appendChild(header);
+    li.appendChild(espc);
+    li.appendChild(listaSub);
+
+    this._htmlOrdenesCreadas.appendChild(li);
+  }
+}
+
+
+
   private escucharOrdenesFirestore() {
     GestorOrdenesFirestore.escucharOrdenes((ordenesDesdeFirestore) => {
       this._ordenes = ordenesDesdeFirestore;
@@ -260,6 +343,7 @@ export class Ordenes {
       // Obtener la mesa seleccionada actualmente en el selector
       const mesaSeleccionada = this._htmlSelectMesa.value;
       const ordenSeleccionada = this._ordenes.find(o => o.noMesa?.toString() === mesaSeleccionada);
+      this.renderListaOrdenes();
 
       // Repintar el selector sin perder la selección previa
       this.agregarOrdenSelector(mesaSeleccionada);
@@ -310,7 +394,6 @@ export class Ordenes {
       const option = document.createElement('option');
       option.value = noMesa;
 
-      // Formato dinámico del texto de la opción
       if (orden.nombreCliente && orden.nombreCliente.trim() !== '') {
         option.textContent = `Orden para llevar ${noMesa} - ${orden.nombreCliente.trim()}`;
       } else {
@@ -365,11 +448,10 @@ export class Ordenes {
         'Agua enbotellada CH': this.getSafeValue(this._htmlAguaBCH)
       };
 
-
       const numeroMesa = Number(this._htmlSelectMesa.value);
       const orden = this._ordenes.find(ord => ord.noMesa === numeroMesa);
 
-      const totalTacos = Object.values(tacos).reduce((acc, cantidad) => acc + cantidad, 0)
+      const totalTacos = Object.values(tacos).reduce((acc, cantidad) => acc + cantidad, 0);
       const totalEntamalados = Object.values(entamalados).reduce((acc, cantidad) => acc + cantidad, 0);
       const totalBebidas = Object.values(bebidas).reduce((acc, cantidad) => acc + cantidad, 0);
 
@@ -412,54 +494,55 @@ export class Ordenes {
       this.limpiarCampos();
     }
 
-    async crearOrdenParaLlevarYAgregarSubOrden() {
-  // 1. Obtener la mesa actual desde el selector
-  const mesaActual = Number(this._htmlSelectMesa.value);
-  if (isNaN(mesaActual)) {
-    alert("Número de mesa actual no válido.");
-    return;
+  async crearOrdenParaLlevarYAgregarSubOrden() {
+    // 1. Obtener la mesa actual desde el selector
+    const mesaActual = Number(this._htmlSelectMesa.value);
+    if (isNaN(mesaActual)) {
+      alert("Número de mesa actual no válido.");
+      return;
+    }
+
+    // 2. Buscar siguiente número de mesa libre
+    let nuevaMesa = Math.max(10, mesaActual + 1);
+    while (this._ordenes.some(orden => orden.noMesa === nuevaMesa)) {
+      nuevaMesa++;
+    }
+
+    // 3. Crear la orden automáticamente
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    const nuevaOrden = new Orden({
+      mesa: nuevaMesa,
+      nombreCliente: `Cliente para llevar`,
+      fecha: hoy
+    });
+
+    this._ordenes.push(nuevaOrden);
+    this.agregarOrdenSelector(); // Refrescar selector
+
+    // 4. Guardar la nueva orden en Firestore
+    try {
+      await GestorOrdenesFirestore.guardarOrden(nuevaOrden);
+    } catch (error) {
+      console.error("Error al guardar la orden para llevar:", error);
+      alert("No se pudo guardar la nueva orden.");
+      return;
+    }
+
+    // 5. Establecer como seleccionada en el DOM
+    this._htmlSelectMesa.value = nuevaMesa.toString();
+    this._htmlListaSubOrdenes.innerHTML = '';
+    this.btnEstadoOrden(nuevaOrden);
+    this.mostrarSubOrdenes(nuevaOrden);
+    this.mostrarEspecificaciones(nuevaOrden);
+    this.renderListaOrdenes();
+
+    // 6. Llamar al método que ya tienes para crear la suborden
+    await this.crearSubOrden();
+
+    alert(`Nueva orden creada para mesa ${nuevaMesa} y suborden agregada.`);
   }
-
-  // 2. Buscar siguiente número de mesa libre (a partir de 10, como dijiste)
-  let nuevaMesa = Math.max(10, mesaActual + 1);
-  while (this._ordenes.some(orden => orden.noMesa === nuevaMesa)) {
-    nuevaMesa++;
-  }
-
-  // 3. Crear la orden automáticamente
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-
-  const nuevaOrden = new Orden({
-    mesa: nuevaMesa,
-    nombreCliente: `Cliente para llevar`,
-    fecha: hoy
-  });
-
-  this._ordenes.push(nuevaOrden);
-  this.agregarOrdenSelector(); // Refrescar selector
-
-  // 4. Guardar la nueva orden en Firestore
-  try {
-    await GestorOrdenesFirestore.guardarOrden(nuevaOrden);
-  } catch (error) {
-    console.error("Error al guardar la orden para llevar:", error);
-    alert("No se pudo guardar la nueva orden.");
-    return;
-  }
-
-  // 5. Establecer como seleccionada en el DOM
-  this._htmlSelectMesa.value = nuevaMesa.toString();
-  this._htmlListaSubOrdenes.innerHTML = '';
-  this.btnEstadoOrden(nuevaOrden);
-  this.mostrarSubOrdenes(nuevaOrden);
-  this.mostrarEspecificaciones(nuevaOrden);
-
-  // 6. Llamar al método que ya tienes para crear la suborden
-  await this.crearSubOrden();
-
-  alert(`Nueva orden creada para mesa ${nuevaMesa} y suborden agregada.`);
-}
 
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -490,32 +573,34 @@ export class Ordenes {
     btnEliminarOrden.type = 'button';
 
     btnEstado.addEventListener('click', () => {
-      if (orden.subOrdenes.length === 0) {
-        alert("La orden tiene que tener al menos una suborden para poder marcarla como pagada.");
-        return;
-      }
-      orden.estadoOrden = true;
-      this._ordenes = this._ordenes.filter(o => o.noMesa !== orden.noMesa);
-      this.actualizarSelectMesas();
-      this._gestorVentas.agregarVenta(orden);
+      // if (orden.subOrdenes.length === 0) {
+      //   alert("La orden tiene que tener al menos una suborden para poder marcarla como pagada.");
+      //   return;
+      // }
+      // orden.estadoOrden = true;
+      // this._ordenes = this._ordenes.filter(o => o.noMesa !== orden.noMesa);
+      // this.actualizarSelectMesas();
+      // this._gestorVentas.agregarVenta(orden);
 
-      const tieneNombre = orden.nombreCliente && orden.nombreCliente.trim() !== '';
-      const tipo = tieneNombre
-      ? `Orden ${orden.noMesa} Cliente: ${orden.nombreCliente!.trim()} PAGADA`
-      : `Orden mesa: ${orden.noMesa} PAGADA`;
+      // const tieneNombre = orden.nombreCliente && orden.nombreCliente.trim() !== '';
+      // const tipo = tieneNombre
+      // ? `Orden ${orden.noMesa} Cliente: ${orden.nombreCliente!.trim()} PAGADA`
+      // : `Orden mesa: ${orden.noMesa} PAGADA`;
 
-      alert(tipo);
+      // alert(tipo);
+      this.marcarComoPagada(orden);
     });
 
     btnEliminarOrden.addEventListener('click', () => {
-      this.eliminarOrden(orden);
-      const tieneNombre = orden.nombreCliente && orden.nombreCliente.trim() !== '';
-      const tipo = tieneNombre
-      ? `Orden ${orden.noMesa} Cliente: ${orden.nombreCliente!.trim()} ELIMINADA`
-      : `Orden mesa: ${orden.noMesa} ELIMINADA`;
+      // this.eliminarOrden(orden);
+      // const tieneNombre = orden.nombreCliente && orden.nombreCliente.trim() !== '';
+      // const tipo = tieneNombre
+      // ? `Orden ${orden.noMesa} Cliente: ${orden.nombreCliente!.trim()} ELIMINADA`
+      // : `Orden mesa: ${orden.noMesa} ELIMINADA`;
 
-      alert(tipo);
-      GestorOrdenesFirestore.eliminarOrden(orden.id!);
+      // alert(tipo);
+      // GestorOrdenesFirestore.eliminarOrden(orden.id!);
+      this.eliminarOrdenCompletamente(orden);
     });
 
     this._htmlFormatoOrden.appendChild(hd);
@@ -524,6 +609,36 @@ export class Ordenes {
     this._htmlFormatoOrden.appendChild(document.createTextNode(' '));
     this._htmlFormatoOrden.appendChild(btnEliminarOrden);
   }
+
+  private marcarComoPagada(orden: Orden) {
+    if (orden.subOrdenes.length === 0) {
+      alert("La orden tiene que tener al menos una suborden para poder marcarla como pagada.");
+      return;
+    }
+
+    orden.estadoOrden = true;
+    this._ordenes = this._ordenes.filter(o => o.noMesa !== orden.noMesa);
+    this.actualizarSelectMesas();
+    this._gestorVentas.agregarVenta(orden);
+
+    const tieneNombre = orden.nombreCliente && orden.nombreCliente.trim() !== '';
+    const tipo = tieneNombre
+      ? `Orden ${orden.noMesa} Cliente: ${orden.nombreCliente!.trim()} PAGADA`
+      : `Orden mesa: ${orden.noMesa} PAGADA`;
+
+    alert(tipo);
+  }
+
+  private eliminarOrdenCompletamente(orden: Orden) {
+    this.eliminarOrden(orden);
+      const tieneNombre = orden.nombreCliente && orden.nombreCliente.trim() !== '';
+      const tipo = tieneNombre
+      ? `Orden ${orden.noMesa} Cliente: ${orden.nombreCliente!.trim()} ELIMINADA`
+      : `Orden mesa: ${orden.noMesa} ELIMINADA`;
+      alert(tipo);
+      GestorOrdenesFirestore.eliminarOrden(orden.id!)
+  }
+
 
   private parseFechaLocal(fechaStr: string): Date {
     const [año, mes, dia] = fechaStr.split('-').map(Number);
@@ -582,31 +697,6 @@ export class Ordenes {
       this.actualizarSelectMesas();
     }
 
-
-    ////////////////////////////////////////////////////////////////////////////////////
-    // private mostrarSubOrdenes(orden: Orden): void {
-    //   this._htmlListaSubOrdenes.innerHTML = '';
-    //   let especificaciones = this._htmlespecificacionesSub.value.trim();
-    //   orden.subOrdenes.forEach((subOrden, index) => {
-
-    //     console.log("¿Es instancia de SubOrden?", subOrden instanceof SubOrden);
-    //     const li = document.createElement('li');
-    //     li.innerHTML = `${especificaciones}, SubOrden ${index + 1}: ${subOrden.formatoSubOrden()} <button type='button' class='btnEliminarSubOrden'>Eliminar</button>`;
-        
-    //     const btnEliminar = li.querySelector('.btnEliminarSubOrden') as HTMLButtonElement;
-    //     btnEliminar.addEventListener('click', () => {
-    //       const idx = orden.subOrdenes.indexOf(subOrden);
-    //       GestorOrdenesFirestore.eliminarSubOrden(orden.id!, subOrden.idSub!);
-    //       if (idx !== -1) {
-    //         orden.subOrdenes.splice(idx, 1);
-    //         this.mostrarSubOrdenes(orden); // Recursivamente vuelve a renderizar la lista
-    //         this._htmlFormatoOrden.innerHTML = orden.formatoOrden(orden.fecha);
-    //         this.btnEstadoOrden(orden);
-    //       }
-    //     });
-    //     this._htmlListaSubOrdenes.appendChild(li);
-    //   });
-    // }
 
   private mostrarSubOrdenes(orden: Orden): void {
     this._htmlListaSubOrdenes.innerHTML = '';
@@ -676,6 +766,4 @@ export class Ordenes {
       this._htmlListaSubOrdenes.appendChild(li);
     });
   }
-
-
 }
