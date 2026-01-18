@@ -59,29 +59,31 @@ export class SubOrden {
     let total = 0;
 
     const preciosTacos: Record<string, number> = {
-      'Tacos de Carne de puerco': 13,
-      'Tacos de Chicharrón': 13,
-      'Tacos de Papa': 13,
-      'Tacos de Frijol': 13,
-      'Tacos Mixtos': 17
+      'Tacos de Carne de puerco': 14,
+      'Tacos de Chicharrón': 14,
+      'Tacos de Papa': 14,
+      'Tacos de Frijol': 14,
+      'Tacos Mixtos': 18
     };
 
     const preciosEntamalados: Record<string, number> = {
-      'Ent. Carne de res': 35,
+      'Ent. Carne de res': 38,
       'Ent. Frijol': 30,
-      'Ent. Mixto': 35
+      'Ent. Mixto': 38
     };
 
     const preciosBebidas: Record<string, number> = {
-      'Agua de jamaica G': 25,
-      'Agua de horchata G': 25,
+      'Agua de jamaica G': 30,
+      'Agua de horchata G': 30,
       'Agua de jamaica CH': 15,
       'Agua de horchata CH': 15,
-      'Refresco': 25,
-      'Refresco 600 ml': 26,
-      'Café': 25,
-      'Agua enbotellada G': 15,
-      'Agua enbotellada CH': 10
+      'Bolsa de agua jamica': 20,
+      'Bolsa de agua horchata': 20,
+      'Refresco': 30,
+      'Refresco 600 ml': 32,
+      'Café': 30,
+      'Agua enbotellada G': 20,
+      'Agua enbotellada CH': 15
     };
 
     for (let key in this._tacos) {
@@ -175,6 +177,8 @@ export class SubOrden {
       'Agua de horchata G': 'ASGh',
       'Agua de jamaica CH': 'ASCHj',
       'Agua de horchata CH': 'ASCHh',
+      'Bolsa de agua jamica': 'BAj',
+      'Bolsa de agua horchata': 'BAh',
       'Refresco': 'REF',
       'Refresco 600 ml': 'REF600ml',
       'Café': 'CAF',

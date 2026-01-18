@@ -32,6 +32,8 @@ export class Ordenes {
   private _htmlAguaSGh: HTMLInputElement;
   private _htmlAguaSCHj: HTMLInputElement;
   private _htmlAguaSCHh: HTMLInputElement;
+  private _htmlBolsaAguaJ: HTMLInputElement;
+  private _htmlBolsaAguaH: HTMLInputElement;
   private _htmlRefresco: HTMLInputElement;
   private _htmlRefresco600ml: HTMLInputElement;
   private _htmlCafe: HTMLInputElement;
@@ -83,6 +85,8 @@ export class Ordenes {
     this._htmlAguaSGh = document.getElementById("aguaSGh") as HTMLInputElement;
     this._htmlAguaSCHj = document.getElementById("aguaSCHj") as HTMLInputElement;
     this._htmlAguaSCHh = document.getElementById("aguaSCHh") as HTMLInputElement;
+    this._htmlBolsaAguaJ = document.getElementById("bolsaAguaJ") as HTMLInputElement;
+    this._htmlBolsaAguaH = document.getElementById("bolsaAguaH") as HTMLInputElement;
     this._htmlRefresco = document.getElementById("refresco") as HTMLInputElement;
     this._htmlRefresco600ml = document.getElementById("refresco600ml") as HTMLInputElement;
     this._htmlCafe = document.getElementById("cafe") as HTMLInputElement;
@@ -441,6 +445,8 @@ export class Ordenes {
         'Agua de horchata G': this.getSafeValue(this._htmlAguaSGh),
         'Agua de jamaica CH': this.getSafeValue(this._htmlAguaSCHj),
         'Agua de horchata CH': this.getSafeValue(this._htmlAguaSCHh),
+        'Bolsa de agua jamaica': this.getSafeValue(this._htmlBolsaAguaJ),
+        'Bolsa de agua horchata': this.getSafeValue(this._htmlBolsaAguaH),
         'Refresco': this.getSafeValue(this._htmlRefresco),
         'Refresco 600 ml': this.getSafeValue(this._htmlRefresco600ml),
         'Café': this.getSafeValue(this._htmlCafe),
