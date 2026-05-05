@@ -71,6 +71,51 @@ export class GestorOrdenesFirestore {
   }
 
   ////////////////////////////////////////////////////////////////////
+  // Obtener órdenes pagadas entre fechas
+  static async obtenerOrdenesEntreFechas(fechaInicio: Date, fechaFin: Date): Promise<Orden[]> {
+    const ref = collection(db, this.coleccion);
+    const fechaInicioStr = fechaInicio.toISOString().split('T')[0];
+    const fechaFinStr = fechaFin.toISOString().split('T')[0];
+
+    const q = query(
+      ref,
+      where("_estadoOrden", "==", true),
+      where("fecha", ">=", fechaInicioStr),
+      where("fecha", "<=", fechaFinStr),
+      orderBy("fecha", "asc")
+    );
+
+    const snapshot = await getDocs(q);
+    const ordenes: Orden[] = [];
+
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      ordenes.push(Orden.fromJSON({ id: docSnap.id, ...data }));
+    });
+
+    return ordenes;
+  }
+
+  static async obtenerOrdenesPagadas(): Promise<Orden[]> {
+    const ref = collection(db, this.coleccion);
+    const q = query(
+      ref,
+      where("_estadoOrden", "==", true),
+      orderBy("fecha", "asc")
+    );
+
+    const snapshot = await getDocs(q);
+    const ordenes: Orden[] = [];
+
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      ordenes.push(Orden.fromJSON({ id: docSnap.id, ...data }));
+    });
+
+    return ordenes;
+  }
+
+  ////////////////////////////////////////////////////////////////////
   // Actualizar especificaciones de una orden
   static async actualizarEspecificaciones(idOrden: string, nuevasEspecificaciones: string) {
     try {

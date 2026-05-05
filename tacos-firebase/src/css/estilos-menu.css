@@ -66,7 +66,7 @@ main {
 .menu-list li:hover::after {
   content: attr(data-desc);
   position: absolute;
-  left: 110%;
+  left: 30%;
   background: var(--verde-claro);
   color: black;
   padding: 0.3rem 0.6rem;
@@ -83,16 +83,11 @@ main {
   gap: 1rem;
 }
 
-.imagen-alimento {
+.imagen-alimento img {
   width: 100%;
-  height: 120px;
-  background-color: var(--verde-claro);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
+  height: 100%;
+  object-fit: cover; /* evita deformación */
+  display: block;
 }
 
 @media (max-width: 300px) {

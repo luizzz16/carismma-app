@@ -103,6 +103,58 @@ button:hover {
   font-weight: 500;
 }
 
+#graficoFinesSemana {
+  margin-top: 2rem;
+}
+
+.filtro-rango {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.filtro-rango .form-group {
+  flex: 1 1 220px;
+}
+
+.chart-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 1rem;
+  padding-bottom: 1rem;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 243, 215, 0.95), rgba(255, 255, 255, 0.95));
+}
+
+.chart-inner {
+  display: inline-block;
+  min-width: 100%;
+}
+
+.chart-scroll-wrapper canvas {
+  display: block;
+  width: auto;
+  height: 360px;
+}
+
+#graficoMensaje {
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+#listaFinesSemana {
+  margin-top: 1rem;
+  padding-left: 1.5rem;
+}
+
+#listaFinesSemana li {
+  margin-bottom: 0.4rem;
+}
+
 #login-container {
   display: flex;
   justify-content: center;
