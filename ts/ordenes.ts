@@ -24,7 +24,13 @@ export class Ordenes {
   // Bebidas
   private _htmlAguaSG: HTMLInputElement;
   private _htmlAguaSCH: HTMLInputElement;
+  private _htmlAguaSGh: HTMLInputElement;
+  private _htmlAguaSCHj: HTMLInputElement;
+  private _htmlAguaSCHh: HTMLInputElement;
+  private _htmlBolsaAguaJ: HTMLInputElement;
+  private _htmlBolsaAguaH: HTMLInputElement;
   private _htmlRefresco: HTMLInputElement;
+  private _htmlRefresco600ml: HTMLInputElement;
   private _htmlCafe: HTMLInputElement;
   private _htmlAguaBG: HTMLInputElement;
   private _htmlAguaBCH: HTMLInputElement;
@@ -59,10 +65,17 @@ export class Ordenes {
     // Bebidas
     this._htmlAguaSG = document.getElementById("aguaSG") as HTMLInputElement;
     this._htmlAguaSCH = document.getElementById("aguaSCH") as HTMLInputElement;
+    this._htmlAguaSGh = document.getElementById("aguaSGh") as HTMLInputElement;
+    this._htmlAguaSCHj = document.getElementById("aguaSCHj") as HTMLInputElement;
+    this._htmlAguaSCHh = document.getElementById("aguaSCHh") as HTMLInputElement;
+    this._htmlBolsaAguaJ = document.getElementById("bolsaAguaJ") as HTMLInputElement;
+    this._htmlBolsaAguaH = document.getElementById("bolsaAguaH") as HTMLInputElement;
     this._htmlRefresco = document.getElementById("refresco") as HTMLInputElement;
+    this._htmlRefresco600ml = document.getElementById("refresco600ml") as HTMLInputElement;
     this._htmlCafe = document.getElementById("cafe") as HTMLInputElement;
     this._htmlAguaBG = document.getElementById("aguaBG") as HTMLInputElement;
     this._htmlAguaBCH = document.getElementById("aguaBCH") as HTMLInputElement;
+    
     // Botón para crear suborden
     this._htmlBotonSubOrden = document.getElementById("crearSubOrden") as HTMLButtonElement;
 
@@ -146,12 +159,17 @@ export class Ordenes {
       const bebidas = {
         'Agua de sabor G': this.getSafeValue(this._htmlAguaSG),
         'Agua de sabor CH': this.getSafeValue(this._htmlAguaSCH),
+        'Agua de horchata G': this.getSafeValue(this._htmlAguaSGh),
+        'Agua de jamaica CH': this.getSafeValue(this._htmlAguaSCHj),
+        'Agua de horchata CH': this.getSafeValue(this._htmlAguaSCHh),
+        'Bolsa de agua jamaica': this.getSafeValue(this._htmlBolsaAguaJ),
+        'Bolsa de agua horchata': this.getSafeValue(this._htmlBolsaAguaH),
         'Refresco': this.getSafeValue(this._htmlRefresco),
+        'Refresco 600 ml': this.getSafeValue(this._htmlRefresco600ml),
         'Café': this.getSafeValue(this._htmlCafe),
         'Agua enbotellada G': this.getSafeValue(this._htmlAguaBG),
         'Agua enbotellada CH': this.getSafeValue(this._htmlAguaBCH)
       };
-
 
       const nuevaSubOrden = new SubOrden(tacos, entamalados, bebidas);
       const numeroMesa = Number(this._htmlSelectMesa.value);

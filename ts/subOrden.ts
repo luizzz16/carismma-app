@@ -1,4 +1,5 @@
 export class SubOrden {
+
   private _tacos: Record<string, number>;
   private _entamalados: Record<string, number>;
   private _bebidas: Record<string, number>;
@@ -17,26 +18,31 @@ export class SubOrden {
     let total = 0;
 
     const preciosTacos: Record<string, number> = {
-      'Tacos de Carne de puerco': 13,
-      'Tacos de Chicharrón': 13,
-      'Tacos de Papa': 13,
-      'Tacos de Frijol': 13,
-      'Tacos Mixtos': 17
+      'Tacos de Carne de puerco': 14,
+      'Tacos de Chicharrón': 14,
+      'Tacos de Papa': 14,
+      'Tacos de Frijol': 14,
+      'Tacos Mixtos': 18
     };
 
     const preciosEntamalados: Record<string, number> = {
-      'Ent. Carne de res': 35,
+      'Ent. Carne de res': 38,
       'Ent. Frijol': 30,
-      'Ent. Mixto': 35
+      'Ent. Mixto': 38
     };
 
     const preciosBebidas: Record<string, number> = {
-      'Agua de sabor G': 25,
-      'Agua de sabor CH': 15,
-      'Refresco': 25,
-      'Café': 25,
-      'Agua enbotellada G': 15,
-      'Agua enbotellada CH': 10
+      'Agua de jamaica G': 30,
+      'Agua de horchata G': 30,
+      'Agua de jamaica CH': 15,
+      'Agua de horchata CH': 15,
+      'Bolsa de agua jamaica': 20,
+      'Bolsa de agua horchata': 20,
+      'Refresco': 30,
+      'Refresco 600 ml': 32,
+      'Café': 30,
+      'Agua enbotellada G': 20,
+      'Agua enbotellada CH': 15
     };
 
     for (let key in this._tacos) {
@@ -60,6 +66,7 @@ export class SubOrden {
     const agrupar = (categoria: Record<string, number>) => {
       for (const tipo in categoria) {
         const cantidad = categoria[tipo];
+
         if (cantidad > 0) {
           resumen[tipo] = (resumen[tipo] || 0) + cantidad;
         }
@@ -72,8 +79,6 @@ export class SubOrden {
 
     return resumen;
   }
-
-
 
   public formatoSubOrden(): string {
     const partes = [
@@ -99,10 +104,12 @@ export class SubOrden {
 
     for (let tipo in tacos) {
       const cantidad = tacos[tipo];
+
       if (cantidad > 0) {
         resultado += `${cantidad}${abreviaturas[tipo]} `;
       }
     }
+
     return resultado.trim();
   }
 
@@ -117,18 +124,25 @@ export class SubOrden {
 
     for (let tipo in entamalados) {
       const cantidad = entamalados[tipo];
+
       if (cantidad > 0) {
         resultado += `${cantidad}${abreviaturas[tipo]} `;
       }
     }
+
     return resultado.trim();
   }
 
   private formatoBebidas(bebidas: Record<string, number>): string {
     const abreviaturas: Record<string, string> = {
-      'Agua de sabor G': 'ASG',
-      'Agua de sabor CH': 'ASCH',
+      'Agua de jamaica G': 'ASGj',
+      'Agua de horchata G': 'ASGh',
+      'Agua de jamaica CH': 'ASCHj',
+      'Agua de horchata CH': 'ASCHh',
+      'Bolsa de agua jamaica': 'BAj',
+      'Bolsa de agua horchata': 'BAh',
       'Refresco': 'REF',
+      'Refresco 600 ml': 'REF600ml',
       'Café': 'CAF',
       'Agua enbotellada G': 'ABG',
       'Agua enbotellada CH': 'ABCH'
@@ -138,15 +152,20 @@ export class SubOrden {
 
     for (let tipo in bebidas) {
       const cantidad = bebidas[tipo];
+
       if (cantidad > 0) {
         resultado += `${cantidad}${abreviaturas[tipo]} `;
       }
     }
+
     return resultado.trim();
   }
 
   public static fromJSON(obj: any): SubOrden {
-    return new SubOrden(obj._tacos, obj._entamalados, obj._bebidas);
+    return new SubOrden(
+      obj._tacos,
+      obj._entamalados,
+      obj._bebidas
+    );
   }
-
-} 
+}
