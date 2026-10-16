@@ -161,25 +161,11 @@
 
 import { GestorVentas } from './gestorVentas';
 import { Ordenes } from './ordenes';
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
+import { auth, db, provider } from "./firebase";
 
-// Configuración de Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyB5nu02j2CEe7wjczSB_wh5-Uf229rSL3I",
-  authDomain: "tacos-carissma.firebaseapp.com",
-  projectId: "tacos-carissma",
-  storageBucket: "tacos-carissma.firebasestorage.app",
-  messagingSenderId: "992034117238",
-  appId: "1:992034117238:web:c5b0161183be5ff9a87157",
-  measurementId: "G-GMN4606B3S"
-};
-
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-const auth = getAuth();
-const provider = new GoogleAuthProvider();
+let appIniciada = false;
 
 async function validarAccesoPorCorreo(email: string): Promise<boolean> {
   const docRef = doc(db, "usuariosAutorizados", email);
@@ -187,24 +173,24 @@ async function validarAccesoPorCorreo(email: string): Promise<boolean> {
   return docSnap.exists();
 }
 
+async function validarAccesoAdministrador(email: string): Promise<boolean> {
+  const docRef = doc(db, "usuariosAdministradores", email);
+  const docSnap = await getDoc(docRef);
+  return docSnap.exists();
+}
+
 async function login() {
   try {
-    const result = await signInWithPopup(auth, provider);
-    const email = result.user.email!;
-    const autorizado = await validarAccesoPorCorreo(email);
-
-    if (!autorizado) {
-      alert("Este correo no está autorizado.");
-      await signOut(auth);
-    }
+    await signInWithPopup(auth, provider);
   } catch (error) {
-    console.log("Error en login:", error);
+    console.error("Error en login:", error);
   }
 }
 
 onAuthStateChanged(auth, async (user) => {
   const loginContainer = document.getElementById("login-container");
   const contenidoApp = document.getElementById("contenido-app");
+  const adminSectionLink = document.getElementById("adminSectionLink") as HTMLAnchorElement | null;
 
   // Validar si los elementos existen en el DOM
   if (!loginContainer || !contenidoApp) {
@@ -212,16 +198,45 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
+  contenidoApp.style.display = "none";
+  loginContainer.style.display = "flex";
+
   if (user) {
-    const autorizado = await validarAccesoPorCorreo(user.email!);
-    if (autorizado) {
-      loginContainer.style.display = "none";
-      contenidoApp.style.display = "block";
-      iniciarApp();
-    } else {
+    if (!user.email) {
+      alert("La cuenta de Google no proporcionó un correo autorizado.");
+      await signOut(auth);
+      return;
+    }
+
+    try {
+      const [autorizadoOrdenes, autorizadoAdministrador] = await Promise.all([
+        validarAccesoPorCorreo(user.email),
+        validarAccesoAdministrador(user.email)
+      ]);
+
+      if (autorizadoOrdenes || autorizadoAdministrador) {
+        if (adminSectionLink) {
+          adminSectionLink.hidden = !autorizadoAdministrador;
+        }
+        loginContainer.style.display = "none";
+        contenidoApp.style.display = "block";
+        if (!appIniciada) {
+          iniciarApp();
+          appIniciada = true;
+        }
+      } else {
+        alert("Este correo no está autorizado.");
+        await signOut(auth);
+      }
+    } catch (error) {
+      console.error("Error al verificar autorización:", error);
+      alert("No se pudo verificar tu autorización. Inténtalo nuevamente.");
       await signOut(auth);
     }
   } else {
+    if (adminSectionLink) {
+      adminSectionLink.hidden = true;
+    }
     loginContainer.style.display = "flex";
     contenidoApp.style.display = "none";
   }
@@ -240,5 +255,3 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 export { auth, provider };
-
-

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7eedc">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Registro de ventas | Tacos Carismma</title>
+  <link rel="stylesheet" href="/src/css/estilos-orden.css">
+  <link rel="icon" href="/image/logoCaris.jpg" type="image/jpeg">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/menu.html" aria-label="Tacos Carismma, ir al menú">
+      <img src="/image/logoCaris.jpg" alt="">
+      <span>Tacos <strong>Carismma</strong></span>
+    </a>
+    <nav aria-label="Navegación del personal">
+      <a href="/ventas" aria-current="page">Crear órdenes</a>
+      <a id="adminSectionLink" href="/admin" hidden>Ventas por fecha</a>
+      <a href="/menu.html">Sitio público</a>
+    </nav>
+  </header>
+
+  <div id="login-container" class="staff-login">
+    <p class="eyebrow">Acceso del personal</p>
+    <h1>Registro de ventas</h1>
+    <p>Inicia sesión con tu cuenta autorizada para continuar con las órdenes del día.</p>
+    <button id="btnLogin" type="button">Iniciar sesión con Google</button>
+  </div>
+
+  <div id="contenido-app" style="display: none;">
+    <main class="staff-orders">
+      <h1>Registro de ventas</h1>
+      <form id="ordenForm">
+        <section class="order-builder-block order-creation-block" aria-labelledby="create-order-title">
+          <h2 id="create-order-title">Crear orden</h2>
+          <div class="details-grid">
+            <div class="form-group"><label for="noMesa">Número de mesa:</label><input type="text" id="noMesa"></div>
+            <div class="form-group"><label for="nombreCliente">Nombre del cliente:</label><input type="text" id="nombreCliente" placeholder="Nombre del cliente"></div>
+            <div class="form-group"><label for="fechaOrden">Fecha:</label><input type="date" id="fechaOrden"></div>
+          </div>
+          <button type="button" id="agregarOrden">Crear nueva orden</button>
+        </section>
+
+        <section class="order-builder-block current-order-block" aria-labelledby="current-order-title">
+          <h2 id="current-order-title">Orden seleccionada</h2>
+          <div class="form-group"><label for="SelectorNoMesa">Selecciona una mesa:</label><select id="SelectorNoMesa"></select></div>
+          <h3 id="formatoOrden"></h3>
+          <div class="form-group"><label for="especificaciones">Especificaciones de la orden:</label><textarea id="especificaciones" rows="3" placeholder="Escribe aquí las especificaciones"></textarea><button type="button" id="mostrarEspecificaciones">Guardar especificaciones</button></div>
+          <div class="form-group"><label>Subórdenes:</label><ol id="listaSubOrdenes"></ol></div>
+        </section>
+
+        <section class="seccion">
+          <h2>Tacos</h2>
+          <div class="product-grid">
+            <div class="form-group"><label for="puerco">Carne de puerco ($14):</label><input type="number" id="puerco" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="chicharron">Chicharrón ($14):</label><input type="number" id="chicharron" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="papa">Papa ($14):</label><input type="number" id="papa" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="frijol">Frijol ($14):</label><input type="number" id="frijol" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="mixtosT">Mixtos ($18):</label><input type="number" id="mixtosT" min="0" placeholder="0"></div>
+          </div>
+        </section>
+
+        <section class="seccion">
+          <h2>Entamalados</h2>
+          <div class="product-grid">
+            <div class="form-group"><label for="entamaladoR">Carne de res ($38):</label><input type="number" id="entamaladoR" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="entamaladoF">Frijol ($30):</label><input type="number" id="entamaladoF" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="entamaladoM">Mixto ($38):</label><input type="number" id="entamaladoM" min="0" placeholder="0"></div>
+          </div>
+        </section>
+
+        <section class="seccion">
+          <h2>Bebidas</h2>
+          <div class="product-grid">
+            <div class="form-group"><label for="aguaSGj">Agua de jamaica G ($30):</label><input type="number" id="aguaSGj" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="aguaSGh">Agua de horchata G ($30):</label><input type="number" id="aguaSGh" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="aguaSCHj">Agua de jamaica CH ($15):</label><input type="number" id="aguaSCHj" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="aguaSCHh">Agua de horchata CH ($15):</label><input type="number" id="aguaSCHh" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="bolsaAguaJ">Bolsa de agua de jamaica ($20):</label><input type="number" id="bolsaAguaJ" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="bolsaAguaH">Bolsa de agua de horchata ($20):</label><input type="number" id="bolsaAguaH" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="refresco">Refresco ($30):</label><input type="number" id="refresco" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="refresco600ml">Refresco 600 ml ($32):</label><input type="number" id="refresco600ml" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="cafe">Café ($30):</label><input type="number" id="cafe" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="aguaBG">Agua embotellada G ($20):</label><input type="number" id="aguaBG" min="0" placeholder="0"></div>
+            <div class="form-group"><label for="aguaBCH">Agua embotellada CH ($15):</label><input type="number" id="aguaBCH" min="0" placeholder="0"></div>
+          </div>
+        </section>
+
+        <div class="form-group"><label for="especificacionesSub">Especificaciones de la suborden:</label><input type="text" id="especificacionesSub" placeholder="Escribe aquí las especificaciones"></div>
+        <button type="button" id="crearSubOrden">Crear suborden</button>
+        <button type="button" id="crearSubOrdenEnNuevaOrden">Crear suborden en nueva orden</button>
+      </form>
+
+      <section class="staff-order-list"><h2>Órdenes creadas</h2><ol id="ordenesCreadas"></ol></section>
+      <section id="ordenesLista" class="staff-order-list"><h2>Órdenes pagadas</h2><input type="date" id="fechaOrdenPagada"><button id="btnBuscarOrdenPagada" type="button">Buscar</button><ol id="ordenesPagadas"></ol></section>
+    </main>
+  </div>
+
+  <script type="module" src="/src/ts/app.ts"></script>
+</body>
+</html>

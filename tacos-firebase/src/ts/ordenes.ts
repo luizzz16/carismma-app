@@ -105,6 +105,7 @@ export class Ordenes {
 
     // Lista de órdenes
     this._htmlOrdenesPagadas = document.getElementById("ordenesPagadas") as HTMLOListElement;
+    this.establecerFechaActualSiVacia();
 
     // Asignar el evento
     this._htmlBotonOrden.addEventListener('click', () => {this.crearOrden();});
@@ -194,10 +195,7 @@ export class Ordenes {
         alert("Número de mesa inválido");
         return;
       }
-      if (!this._htmlFechaOrden.value) {
-        alert("Fecha de orden es requerida");
-        return;
-      }
+      this.establecerFechaActualSiVacia();
 
     const valorFecha = this._htmlFechaOrden.value;
 
@@ -262,67 +260,82 @@ export class Ordenes {
   private renderListaOrdenes(): void {
   this._htmlOrdenesCreadas.innerHTML = '';
 
-  // Ordenar para mantener un orden visual
-  // const ordenes = [...this._ordenes].sort((a, b) => a.fecha.getTime() - b.fecha.getTime());
-  const ordenes = [...this._ordenes].sort((a, b) => a['_ordenCreacionTiempo'] - b['_ordenCreacionTiempo']);
+  const ordenes = [...this._ordenes].sort((a, b) =>
+    a.ordenCreacionTiempo - b.ordenCreacionTiempo || a.id.localeCompare(b.id)
+  );
 
 
   for (const orden of ordenes) {
     const li = document.createElement('li');
+    li.className = 'order-ticket';
 
-    // Título con formato de orden
     const header = document.createElement('div');
+    header.className = 'order-ticket-header';
     const fechaLocal = this.parseFechaLocal(orden.fecha.toISOString().split('T')[0]);
-    const titulo = document.createElement('span');
-    titulo.textContent = orden.formatoOrden(fechaLocal);
+    const titulo = document.createElement('div');
+    titulo.className = 'order-ticket-title';
+    const numeroOrden = document.createElement('strong');
+    numeroOrden.className = 'order-number';
+    numeroOrden.textContent = orden.noMesa === undefined
+      ? 'Orden para llevar'
+      : `Orden ${orden.noMesa}`;
+    const detallesOrden = document.createElement('span');
+    detallesOrden.className = 'order-ticket-details';
+    detallesOrden.textContent = orden.formatoDetallesOrden(fechaLocal);
+    titulo.appendChild(numeroOrden);
+    titulo.appendChild(detallesOrden);
+
+    const acciones = document.createElement('div');
+    acciones.className = 'order-ticket-actions';
 
     const btnPagada = document.createElement('button');
     btnPagada.type = 'button';
+    btnPagada.className = 'order-action order-paid-button';
     btnPagada.textContent = 'Pagada';
 
     const btnEliminarOrden = document.createElement('button');
     btnEliminarOrden.textContent = 'Eliminar';
     btnEliminarOrden.type = 'button'
+    btnEliminarOrden.className = 'order-action order-delete-button';
 
-    // Botón "Pagada" (usa tu lógica actual)
     btnPagada.addEventListener('click', () => {
       this.marcarComoPagada(orden);
-      this.renderListaOrdenes();  // Re-renderizar la lista
+      this.renderListaOrdenes();
     });
 
     btnEliminarOrden.addEventListener('click', () => {
       this.eliminarOrdenCompletamente(orden);
-      this.renderListaOrdenes();  // Re-renderizar la lista
+      this.renderListaOrdenes();
     });
 
 
     const btnHecho = document.createElement('button');
-      btnHecho.type = 'button';
-      btnHecho.textContent = 'Hecho';
-      btnHecho.style.color = 'white';
-      btnHecho.style.backgroundColor = orden.ordenHecha ? 'green' : 'red';
+    btnHecho.type = 'button';
+    btnHecho.textContent = orden.ordenHecha ? 'Hecho' : 'Pendiente';
+    btnHecho.className = `order-action order-done-button ${orden.ordenHecha ? 'is-done' : 'is-pending'}`;
 
-      // Cuando se hace clic
-      btnHecho.addEventListener('click', async () => {
-        orden.ordenHecha = !orden.ordenHecha; // alternar
-        btnHecho.style.backgroundColor = orden.ordenHecha ? 'green' : 'red';
-        await GestorOrdenesFirestore.marcarOrdenHecha(orden.id, orden.ordenHecha); // guardar en Firestore
-      });
+    btnHecho.addEventListener('click', async () => {
+      orden.ordenHecha = !orden.ordenHecha;
+      btnHecho.textContent = orden.ordenHecha ? 'Hecho' : 'Pendiente';
+      btnHecho.classList.toggle('is-done', orden.ordenHecha);
+      btnHecho.classList.toggle('is-pending', !orden.ordenHecha);
+      await GestorOrdenesFirestore.marcarOrdenHecha(orden.id, orden.ordenHecha);
+    });
 
-
+    acciones.appendChild(btnHecho);
+    acciones.appendChild(btnPagada);
+    acciones.appendChild(btnEliminarOrden);
     header.appendChild(titulo);
-    header.appendChild(document.createTextNode(' '));
-    header.appendChild(btnPagada);
-    header.appendChild(btnEliminarOrden);
-    header.appendChild(document.createTextNode(' '));
-    header.appendChild(btnHecho);
+    header.appendChild(acciones);
 
     // Especificaciones
     const espc = document.createElement('p');
+    espc.className = 'order-ticket-specifications';
     espc.textContent = `Especificaciones: ${orden.especificaciones?.trim() ? orden.especificaciones : 'Sin especificaciones'}`;
 
     // Lista de subórdenes
     const listaSub = document.createElement('ol');
+    listaSub.className = 'order-ticket-suborders';
     orden.subOrdenes.forEach((subOrden, index) => {
       const liSub = document.createElement('li');
       liSub.textContent = `${subOrden.especificacionesSub ?? 'Sin especificaciones'} | SubOrden ${index + 1}: ${subOrden.formatoSubOrden()}`;
@@ -414,7 +427,7 @@ export class Ordenes {
 
     // Limpiar campos del formulario
     this._htmlNumeroMesa.value = '';
-    this._htmlFechaOrden.value = '';
+    this.establecerFechaActualSiVacia();
     this._htmlNombreCliente.value = ''; // Usa .value porque es un input
   }
 
@@ -555,6 +568,15 @@ export class Ordenes {
   private limpiarCampos(): void {
     const inputs = document.querySelectorAll<HTMLInputElement>('input[type="number"]');
     inputs.forEach(input => input.value = '');
+  }
+
+  private establecerFechaActualSiVacia(): void {
+    if (this._htmlFechaOrden.value) return;
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    this._htmlFechaOrden.value = `${anio}-${mes}-${dia}`;
   }
 
   private getSafeValue(input: HTMLInputElement): number {
@@ -709,11 +731,16 @@ export class Ordenes {
 
     orden.subOrdenes.forEach((subOrden, index) => {
       const li = document.createElement('li');
+      li.className = 'suborder-item';
 
       const texto = `${subOrden.especificacionesSub ?? 'Sin especificaciones'} SubOrden ${index + 1}: ${subOrden.formatoSubOrden()}`;
       
       const spanTexto = document.createElement('span');
+      spanTexto.className = 'suborder-text';
       spanTexto.textContent = texto;
+
+      const acciones = document.createElement('div');
+      acciones.className = 'suborder-actions';
 
       const btnEliminar = document.createElement('button');
       btnEliminar.type = 'button';
@@ -767,8 +794,9 @@ export class Ordenes {
       });
 
       li.appendChild(spanTexto);
-      li.appendChild(btnEliminar);
-      li.appendChild(btnDuplicarSub);
+      acciones.appendChild(btnEliminar);
+      acciones.appendChild(btnDuplicarSub);
+      li.appendChild(acciones);
       this._htmlListaSubOrdenes.appendChild(li);
     });
   }

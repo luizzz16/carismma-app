@@ -1,0 +1,47 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null && request.auth.token.email != null;
+    }
+
+    function isAdministrator() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/usuariosAdministradores/$(request.auth.token.email));
+    }
+
+    function isAuthorizedOrderUser() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/usuariosAutorizados/$(request.auth.token.email));
+    }
+
+    match /usuariosAutorizados/{email} {
+      allow get: if signedIn() && request.auth.token.email == email;
+      allow list, create, update, delete: if false;
+    }
+
+    match /usuariosAdministradores/{email} {
+      allow get: if signedIn() && request.auth.token.email == email;
+      allow list, create, update, delete: if false;
+    }
+
+    match /ordenes/{ordenId} {
+      allow read: if isAdministrator()
+        || (isAuthorizedOrderUser() && resource.data._estadoOrden == false);
+
+      allow create: if (isAdministrator() || isAuthorizedOrderUser())
+        && request.resource.data._estadoOrden == false;
+
+      allow update: if isAdministrator()
+        || (isAuthorizedOrderUser() && resource.data._estadoOrden == false);
+
+      allow delete: if isAdministrator()
+        || (isAuthorizedOrderUser() && resource.data._estadoOrden == false);
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

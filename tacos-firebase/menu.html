@@ -1,74 +1,177 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Carismma</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7eedc">
+  <meta name="description" content="Visita Tacos Carismma en Tecomán, Colima. Consulta nuestro menú de tacos, entamalados y bebidas, y haz tu pedido por WhatsApp.">
+  <meta name="keywords" content="tacos en Tecomán, taquería en Tecomán Colima, tacos Carismma, entamalados, comida mexicana">
+  <meta property="og:locale" content="es_MX">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Tacos Carismma">
+  <meta property="og:url" content="https://tacos-carissma.web.app/menu.html">
+  <meta property="og:title" content="Tacos Carismma en Tecomán, Colima | Menú">
+  <meta property="og:description" content="Tacos, entamalados y bebidas en Tecomán, Colima. Revisa el menú y haz tu pedido por WhatsApp.">
+  <meta property="og:image" content="https://tacos-carissma.web.app/image/taco.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>Tacos Carismma en Tecomán, Colima | Menú</title>
   <link rel="stylesheet" href="/src/css/estilos-menu.css">
-  <link rel="icon" href="image/logoCaris.jpg" type="image/png">
+  <link rel="icon" href="/image/logoCaris.jpg" type="image/jpeg">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "name": "Tacos Carismma",
+      "servesCuisine": "Mexicana",
+      "telephone": "+523133297441",
+      "url": "https://tacos-carissma.web.app/menu.html",
+      "image": "https://tacos-carissma.web.app/image/taco.jpg",
+      "hasMap": "https://www.google.com/maps/search/?api=1&query=Av.%20Carlos%20de%20la%20Madrid%20%2318%20Col.%20Santa%20Elena%2C%20Tecom%C3%A1n%2C%20Colima%2C%20Mexico%2C%2028134",
+      "menu": "https://tacos-carissma.web.app/menu.html#menu",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Av. Carlos de la Madrid #18, Col. Santa Elena",
+        "addressLocality": "Tecomán",
+        "addressRegion": "Colima",
+        "postalCode": "28134",
+        "addressCountry": "MX"
+      },
+      "sameAs": [
+        "https://www.instagram.com/tacos_carismma/",
+        "https://www.facebook.com/profile.php?id=100093161237071"
+      ]
+    }
+  </script>
 </head>
 <body>
-  <header>
-    <h1 id="tituloPrincipal">TACOS CARISMMA</h1>
+  <header class="site-header">
+    <a class="brand" href="/menu.html" aria-label="Tacos Carismma, inicio">
+      <img src="/image/logoCaris.jpg" alt="">
+      <span>Tacos <strong>Carismma</strong></span>
+    </a>
+    <nav aria-label="Navegación principal">
+      <a href="#menu">Menú</a>
+      <a class="nav-cta" href="/index.html">Hacer pedido</a>
+    </nav>
   </header>
 
-    <!-- <nav>
-    <a href="menu.html">Menú</a>
-    <a href="index.html">Orden</a>
-    <a href="admin.html">Administrar</a>
-  </nav> -->
-
-  <nav id="menuNavegacion">
-    <a href="https://tacos-carissma.web.app/menu.html">Menú</a>
-    <a href="https://tacos-carissma.web.app/index.html">Orden</a>
-    <a href="https://tacos-carissma.web.app/admin.html">Administrar</a>
-  </nav>
-
   <main>
-    <div id="contenidoMenu">
-      <div class="menu-item" id="seccionTacos">
-        <div class="menu-title">Tacos</div>
-        <ul class="menu-list">
-          <li data-desc="Taco con carne de puerco">Carne de puerco — $14</li>
-          <li data-desc="Taco con chicharrón">Chicharrón — $14</li>
-          <li data-desc="Taco con papa guisada">Papa — $14</li>
-          <li data-desc="Taco con frijol refrito">Frijol — $14</li>
-          <li data-desc="Taco mixto con variedad">Mixtos — $18</li>
-        </ul>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Sabor de casa, hecho con cariño</p>
+        <h1>Un antojo que<br><span>se disfruta</span></h1>
+        <p>Tacos, entamalados y bebidas preparados para compartir los buenos momentos.</p>
+        <a class="button button-red" href="/index.html">Haz tu pedido <span aria-hidden="true">→</span></a>
+        <div class="hero-note"><span aria-hidden="true">✦</span> Recién hechos para ti</div>
       </div>
+      <div class="hero-image">
+        <img src="/image/taco.jpg" alt="Taco de carne de puerco de Tacos Carismma">
+        <span class="image-sticker">Hecho con<br>cariño</span>
+      </div>
+      <span class="hero-spark spark-one" aria-hidden="true">✳</span>
+      <span class="hero-spark spark-two" aria-hidden="true">✦</span>
+    </section>
 
-      <div class="menu-item" id="seccionEntamalados">
-        <div class="menu-title">Entamalados</div>
-        <ul class="menu-list">
-          <li data-desc="Entamalado de carne de res">Carne de res — $38</li>
-          <li data-desc="Entamalado de frijol">Frijol — $30</li>
-          <li data-desc="Entamalado mixto">Mixtos — $38</li>
-        </ul>
+    <section class="menu-section" id="menu">
+      <div class="section-intro">
+        <p class="eyebrow">Del comal a tu mesa</p>
+        <h2>Lo bueno se comparte</h2>
+        <p>Encuentra tu favorito y arma tu pedido a tu manera.</p>
       </div>
+      <nav class="category-links" aria-label="Categorías del menú">
+        <a href="#tacos">Tacos</a>
+        <a href="#entamalados">Entamalados</a>
+        <a href="#bebidas">Bebidas</a>
+      </nav>
 
-      <div class="menu-item" id="seccionBebidas">
-        <div class="menu-title">Bebidas</div>
-        <ul class="menu-list">
-          <li data-desc="Agua natural con sabor grande">Agua de sabor G — $30</li>
-          <li data-desc="Agua natural con sabor chica">Agua de sabor CH — $15</li>
-          <li data-desc="Bolsa de agua">Bolsa de agua — $20</li>
-          <li data-desc="Refresco embotellado">Refresco — $30</li>
-          <li data-desc="Café caliente">Café — $30</li>
-          <li data-desc="Agua embotellada grande">Agua embotellada G — $20</li>
-          <li data-desc="Agua embotellada chica">Agua embotellada CH — $15</li>
-        </ul>
-      </div>
-    </div>
+      <div class="menu-grid">
+        <article class="menu-card" id="tacos">
+          <div class="card-image taco-image">
+            <img src="/image/taco.jpg" alt="Tacos hechos al momento">
+          </div>
+          <div class="card-content">
+            <p class="eyebrow">Doraditos y llenos de sabor</p>
+            <h3>Tacos</h3>
+            <ul class="menu-list">
+              <li><span>Carne de puerco</span><strong>$14</strong></li>
+              <li><span>Chicharrón</span><strong>$14</strong></li>
+              <li><span>Papa</span><strong>$14</strong></li>
+              <li><span>Frijol</span><strong>$14</strong></li>
+              <li><span>Mixtos</span><strong>$18</strong></li>
+            </ul>
+          </div>
+        </article>
 
-    <section id="galeriaAlimentos">
-      <div class="imagen-alimento" >
-        <img src="image/taco.jpg" alt="Taco de carne de puerco">
+        <article class="menu-card" id="entamalados">
+          <div class="card-image entamalado-image">
+            <img src="/image/entamalado.jpg" alt="Entamalado tradicional">
+          </div>
+          <div class="card-content">
+            <p class="eyebrow">Una receta que apapacha</p>
+            <h3>Entamalados</h3>
+            <ul class="menu-list">
+              <li><span>Carne de res</span><strong>$38</strong></li>
+              <li><span>Frijol</span><strong>$30</strong></li>
+              <li><span>Mixto</span><strong>$38</strong></li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="menu-card" id="bebidas">
+          <div class="card-image drinks-image">
+            <span class="drink-illustration" aria-hidden="true">☼</span>
+          </div>
+          <div class="card-content">
+            <p class="eyebrow">El complemento perfecto</p>
+            <h3>Bebidas</h3>
+            <ul class="menu-list">
+              <li><span>Agua de sabor grande</span><strong>$30</strong></li>
+              <li><span>Agua de sabor chica</span><strong>$15</strong></li>
+              <li><span>Bolsa de agua</span><strong>$20</strong></li>
+              <li><span>Refresco</span><strong>$30</strong></li>
+              <li><span>Refresco 600 ml</span><strong>$32</strong></li>
+              <li><span>Café</span><strong>$30</strong></li>
+              <li><span>Agua embotellada grande</span><strong>$20</strong></li>
+              <li><span>Agua embotellada chica</span><strong>$15</strong></li>
+            </ul>
+          </div>
+        </article>
       </div>
-      <div class="imagen-alimento">
-        <img src="image/entamalado.jpg" alt="Entamalado de carne de res">
+    </section>
+
+    <section class="order-cta">
+      <div>
+        <p class="eyebrow">¿Ya se te antojó?</p>
+        <h2>Tu próximo bocado está aquí.</h2>
       </div>
+      <a class="button button-light" href="/index.html">Arma tu pedido <span aria-hidden="true">→</span></a>
+      <span class="cta-spark" aria-hidden="true">✳</span>
     </section>
   </main>
 
+  <footer class="site-footer">
+    <a class="brand" href="/menu.html"><span>Tacos <strong>Carismma</strong></span></a>
+    <p>Hechos con cariño, para compartir.</p>
+    <address class="footer-address">
+      <span>Visítanos</span>
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Av.%20Carlos%20de%20la%20Madrid%20%2318%20Col.%20Santa%20Elena%2C%20Tecom%C3%A1n%2C%20Colima%2C%20Mexico%2C%2028134" target="_blank" rel="noopener noreferrer">
+        Av. Carlos de la Madrid #18, Col. Santa Elena<br>Tecomán, Colima, México, 28134
+      </a>
+    </address>
+    <div class="footer-socials">
+      <span>Síguenos</span>
+      <a href="https://www.instagram.com/tacos_carismma/" target="_blank" rel="noopener noreferrer" aria-label="Síguenos en Instagram">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle class="social-icon-dot" cx="17.5" cy="6.5" r="1"></circle></svg>
+        <span>Instagram</span>
+      </a>
+      <a href="https://www.facebook.com/profile.php?id=100093161237071" target="_blank" rel="noopener noreferrer" aria-label="Síguenos en Facebook">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="facebook-icon" d="M13.4 21v-8.2h2.8l.4-3.2h-3.2V7.5c0-.9.3-1.5 1.6-1.5h1.7V3.1c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.3H7.2v3.2H10V21h3.4Z"></path></svg>
+        <span>Facebook</span>
+      </a>
+    </div>
+  </footer>
+  <a class="whatsapp-float" href="https://wa.me/523133297441" target="_blank" rel="noopener noreferrer" aria-label="Escríbenos por WhatsApp">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16.04 3.2A12.72 12.72 0 0 0 5.16 22.5L3.4 28.8l6.45-1.69a12.8 12.8 0 0 0 6.18 1.58h.01c7.03 0 12.75-5.72 12.76-12.75a12.67 12.67 0 0 0-3.74-9.02 12.67 12.67 0 0 0-9.02-3.72Zm0 23.32h-.01a10.6 10.6 0 0 1-5.4-1.48l-.39-.23-3.83 1 1.02-3.73-.25-.39a10.57 10.57 0 0 1-1.62-5.65c0-5.83 4.75-10.58 10.59-10.58 2.82 0 5.47 1.1 7.46 3.1a10.5 10.5 0 0 1 3.09 7.47c0 5.83-4.75 10.58-10.59 10.58Zm5.81-7.93c-.32-.16-1.9-.94-2.19-1.05-.29-.1-.5-.16-.72.16-.21.32-.82 1.05-1 1.27-.18.21-.37.24-.69.08-.32-.16-1.35-.5-2.58-1.6-.95-.85-1.6-1.9-1.79-2.22-.18-.32-.02-.49.14-.65.14-.14.32-.37.48-.55.16-.18.21-.32.32-.53.1-.21.05-.4-.03-.56-.08-.16-.72-1.74-.98-2.38-.26-.62-.52-.54-.72-.55h-.61c-.21 0-.56.08-.85.4-.29.32-1.11 1.08-1.11 2.64s1.14 3.07 1.3 3.28c.16.22 2.24 3.42 5.43 4.8.76.33 1.35.53 1.81.68.76.24 1.45.21 2 .13.61-.09 1.9-.77 2.17-1.51.26-.74.26-1.37.18-1.51-.08-.13-.29-.21-.61-.37Z"/></svg>
+  </a>
 </body>
 </html>

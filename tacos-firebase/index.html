@@ -3,73 +3,193 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carismma</title>
+  <meta name="theme-color" content="#f7eedc">
+  <meta name="description" content="Haz tu pedido de tacos, entamalados y bebidas de Tacos Carismma en Tecomán, Colima. Elige tus productos y envíanoslo por WhatsApp.">
+  <meta property="og:locale" content="es_MX">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Tacos Carismma">
+  <meta property="og:url" content="https://tacos-carissma.web.app/index.html">
+  <meta property="og:title" content="Haz tu pedido | Tacos Carismma en Tecomán">
+  <meta property="og:description" content="Pide tacos, entamalados y bebidas de Tacos Carismma en Tecomán, Colima por WhatsApp.">
+  <meta property="og:image" content="https://tacos-carissma.web.app/image/taco.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>Pedidos por WhatsApp | Tacos Carismma, Tecomán</title>
   <link rel="stylesheet" href="/src/css/estilos-orden.css">
-  <link rel="icon" href="image/logoCaris.jpg" type="image/png">
+  <link rel="icon" href="/image/logoCaris.jpg" type="image/jpeg">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "name": "Tacos Carismma",
+      "servesCuisine": "Mexicana",
+      "telephone": "+523133297441",
+      "url": "https://tacos-carissma.web.app/index.html",
+      "image": "https://tacos-carissma.web.app/image/taco.jpg",
+      "hasMap": "https://www.google.com/maps/search/?api=1&query=Av.%20Carlos%20de%20la%20Madrid%20%2318%20Col.%20Santa%20Elena%2C%20Tecom%C3%A1n%2C%20Colima%2C%20Mexico%2C%2028134",
+      "menu": "https://tacos-carissma.web.app/menu.html#menu",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Av. Carlos de la Madrid #18, Col. Santa Elena",
+        "addressLocality": "Tecomán",
+        "addressRegion": "Colima",
+        "postalCode": "28134",
+        "addressCountry": "MX"
+      },
+      "sameAs": [
+        "https://www.instagram.com/tacos_carismma/",
+        "https://www.facebook.com/profile.php?id=100093161237071"
+      ]
+    }
+  </script>
 </head>
 <body>
-  <header><h1>TACOS CARISMMA</h1></header>
-  <nav id="menuNavegacion">
-    <a href="https://tacos-carissma.web.app/menu.html">Menú</a>
-    <a href="https://tacos-carissma.web.app/index.html">Orden</a>
-    <a href="https://tacos-carissma.web.app/admin.html">Administrar</a>
-  </nav>
-  <div id="login-container"><button id="btnLogin">Iniciar sesión con Google</button></div>
-  <div id="contenido-app" style="display: none;">
-    <main>
-      <form id="ordenForm">
-        <h2>Ordenar</h2>
-        <div class="form-group"><label for="noMesa">Número de mesa:</label><input type="text" id="noMesa"></div>
-        <div class="form-group"><label for="nombreCliente">Nombre cliente:</label><input type="text" id="nombreCliente" placeholder="Nombre del cliente"></div>
-        <div class="form-group"><label for="fechaOrden">Fecha:</label><input type="date" id="fechaOrden"></div>
-        <button type="button" id="agregarOrden">Crear Nueva Orden</button>
-        <div class="form-group"><label for="SelectorNoMesa">Seleccione mesa:</label><select id="SelectorNoMesa"></select></div>
-        <h3 id="formatoOrden"></h3>
-        <div class="form-group"><label for="especificaciones">Especificaciones:</label><textarea id="especificaciones" rows="4" placeholder="Escriba aquí las especificaciones de la orden"></textarea><button type="button" id="mostrarEspecificaciones">Guardar especificaciones</button></div>
-        <div class="form-group"><label>SubOrdenes:</label><ol id="listaSubOrdenes"></ol></div>
+  <header class="site-header">
+    <a class="brand" href="/menu.html" aria-label="Tacos Carismma, ir al menú">
+      <img src="/image/logoCaris.jpg" alt="">
+      <span>Tacos <strong>Carismma</strong></span>
+    </a>
+    <nav aria-label="Navegación principal">
+      <a href="/menu.html">Menú</a>
+      <a class="nav-cta" href="/index.html" aria-current="page">Hacer pedido</a>
+    </nav>
+  </header>
 
-        <section class="seccion">
-          <h3>Tacos</h3>
-          <div class="form-group"><label for="puerco">Carne de puerco ($14):</label><input type="number" id="puerco" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="chicharron">Chicharrón ($14):</label><input type="number" id="chicharron" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="papa">Papa ($14):</label><input type="number" id="papa" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="frijol">Frijol ($14):</label><input type="number" id="frijol" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="mixtosT">Mixtos ($18):</label><input type="number" id="mixtosT" min="0" placeholder="0"></div>
-        </section>
+  <main>
+    <section class="order-intro">
+      <p class="eyebrow">Recién hechos, para ti</p>
+      <h1>Arma tu pedido</h1>
+      <p>Elige tus favoritos y envíanos tu pedido por WhatsApp. Te confirmaremos disponibilidad y horario.</p>
+    </section>
 
-        <section class="seccion">
-          <h3>Entamalados</h3>
-          <div class="form-group"><label for="entamaladoR">Carne de res ($38):</label><input type="number" id="entamaladoR" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="entamaladoF">Frijol ($30):</label><input type="number" id="entamaladoF" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="entamaladoM">Mixto ($38):</label><input type="number" id="entamaladoM" min="0" placeholder="0"></div>
-        </section>
+    <form id="ordenForm">
+      <section class="order-card customer-details" aria-labelledby="datos-title">
+        <div class="section-heading">
+          <span class="step-number">1</span>
+          <div>
+            <p class="eyebrow">Empecemos</p>
+            <h2 id="datos-title">Tus datos</h2>
+          </div>
+        </div>
+        <div class="details-grid">
+          <div class="form-group">
+            <label for="nombreCliente">¿Cómo te llamas?</label>
+            <input type="text" id="nombreCliente" name="nombreCliente" placeholder="Nombre" autocomplete="name" required maxlength="80">
+          </div>
+          <div class="form-group">
+            <label for="fechaOrden">¿Para qué día?</label>
+            <input type="date" id="fechaOrden" name="fechaOrden" required>
+          </div>
+        </div>
+      </section>
 
-        <section class="seccion">
-          <h3>Bebidas</h3>
-          <div class="form-group"><label for="aguaSGj">Agua de jamaica G ($30):</label><input type="number" id="aguaSGj" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="aguaSGh">Agua de horchata G ($30):</label><input type="number" id="aguaSGh" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="aguaSCHj">Agua de jamaica CH ($15):</label><input type="number" id="aguaSCHj" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="aguaSCHh">Agua de horchata CH ($15):</label><input type="number" id="aguaSCHh" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="bolsaAguaJ">Bolsa de agua jamaica ($20):</label><input type="number" id="bolsaAguaJ" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="bolsaAguaH">Bolsa de agua horchata ($20):</label><input type="number" id="bolsaAguaH" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="refresco">Refresco ($30):</label><input type="number" id="refresco" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="refresco600ml">Refresco 600 ml ($32):</label><input type="number" id="refresco600ml" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="cafe">Café ($30):</label><input type="number" id="cafe" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="aguaBG">Agua embotellada G ($20):</label><input type="number" id="aguaBG" min="0" placeholder="0"></div>
-          <div class="form-group"><label for="aguaBCH">Agua embotellada CH ($15):</label><input type="number" id="aguaBCH" min="0" placeholder="0"></div>
-        </section>
+      <section class="order-card" aria-labelledby="tacos-title">
+        <div class="section-heading">
+          <span class="step-number">2</span>
+          <div>
+            <p class="eyebrow">Hechos a mano</p>
+            <h2 id="tacos-title">Tacos</h2>
+          </div>
+        </div>
+        <div class="product-grid">
+          <div class="product-field"><label for="puerco">Carne de puerco <span>$14</span></label><input type="number" id="puerco" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="chicharron">Chicharrón <span>$14</span></label><input type="number" id="chicharron" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="papa">Papa <span>$14</span></label><input type="number" id="papa" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="frijol">Frijol <span>$14</span></label><input type="number" id="frijol" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="mixtosT">Mixtos <span>$18</span></label><input type="number" id="mixtosT" min="0" step="1" value="0" inputmode="numeric"></div>
+        </div>
+      </section>
 
-        <div class="form-group"><label for="especificacionesSub">Especificaciones de la subOrden:</label><input type="text" id="especificacionesSub" placeholder="Escriba aquí las especificaciones de la subOrden"></div>
-        <button type="button" id="crearSubOrden">Crear subOrden</button>
-        <button type="button" id="crearSubOrdenEnNuevaOrden">Crear subOrden en nueva orden</button>
-      </form>
+      <section class="order-card" aria-labelledby="entamalados-title">
+        <div class="section-heading">
+          <span class="step-number">3</span>
+          <div>
+            <p class="eyebrow">Un clásico de la casa</p>
+            <h2 id="entamalados-title">Entamalados</h2>
+          </div>
+        </div>
+        <div class="product-grid">
+          <div class="product-field"><label for="entamaladoR">Carne de res <span>$38</span></label><input type="number" id="entamaladoR" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="entamaladoF">Frijol <span>$30</span></label><input type="number" id="entamaladoF" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="entamaladoM">Mixto <span>$38</span></label><input type="number" id="entamaladoM" min="0" step="1" value="0" inputmode="numeric"></div>
+        </div>
+      </section>
 
-      <section><h2 class="titulo-ordenes">Órdenes Creadas</h2><ol id="ordenesCreadas"></ol></section>
-      <section id="ordenesLista"><h2>Órdenes Pagadas</h2><input type="date" id="fechaOrdenPagada"><button id="btnBuscarOrdenPagada">Buscar</button><ol id="ordenesPagadas"></ol></section>
-    </main>
-  </div>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script type="module" src="/src/ts/app.ts"></script>
+      <section class="order-card" aria-labelledby="bebidas-title">
+        <div class="section-heading">
+          <span class="step-number">4</span>
+          <div>
+            <p class="eyebrow">Para acompañar</p>
+            <h2 id="bebidas-title">Bebidas</h2>
+          </div>
+        </div>
+        <div class="product-grid">
+          <div class="product-field"><label for="aguaSGj">Agua de jamaica grande <span>$30</span></label><input type="number" id="aguaSGj" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="aguaSGh">Agua de horchata grande <span>$30</span></label><input type="number" id="aguaSGh" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="aguaSCHj">Agua de jamaica chica <span>$15</span></label><input type="number" id="aguaSCHj" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="aguaSCHh">Agua de horchata chica <span>$15</span></label><input type="number" id="aguaSCHh" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="bolsaAguaJ">Bolsa de agua de jamaica <span>$20</span></label><input type="number" id="bolsaAguaJ" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="bolsaAguaH">Bolsa de agua de horchata <span>$20</span></label><input type="number" id="bolsaAguaH" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="refresco">Refresco <span>$30</span></label><input type="number" id="refresco" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="refresco600ml">Refresco 600 ml <span>$32</span></label><input type="number" id="refresco600ml" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="cafe">Café <span>$30</span></label><input type="number" id="cafe" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="aguaBG">Agua embotellada grande <span>$20</span></label><input type="number" id="aguaBG" min="0" step="1" value="0" inputmode="numeric"></div>
+          <div class="product-field"><label for="aguaBCH">Agua embotellada chica <span>$15</span></label><input type="number" id="aguaBCH" min="0" step="1" value="0" inputmode="numeric"></div>
+        </div>
+      </section>
+
+      <section class="order-card" aria-labelledby="notes-title">
+        <div class="section-heading">
+          <span class="step-number">5</span>
+          <div>
+            <p class="eyebrow">Casi listo</p>
+            <h2 id="notes-title">¿Alguna indicación?</h2>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="especificaciones">Especificaciones <span class="optional-label">(opcional)</span></label>
+          <textarea id="especificaciones" name="especificaciones" rows="3" maxlength="500" placeholder="Cuéntanos cualquier detalle de tu pedido"></textarea>
+        </div>
+      </section>
+
+      <section class="order-summary" aria-label="Resumen del pedido">
+        <div>
+          <p class="eyebrow">Total estimado</p>
+          <output id="totalOrden" for="puerco chicharron papa frijol mixtosT">$0</output>
+          <p class="summary-note">El pedido se enviará por WhatsApp para confirmar.</p>
+        </div>
+        <button type="submit">Continuar por WhatsApp <span aria-hidden="true">→</span></button>
+      </section>
+      <p id="estadoOrden" class="order-status" role="status" aria-live="polite"></p>
+      <a id="enlaceWhatsApp" class="whatsapp-fallback" href="#" target="_blank" rel="noopener noreferrer" hidden>Abre WhatsApp con tu pedido</a>
+    </form>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <a href="/menu.html">← Volver al menú</a>
+      <p>Tacos Carismma · Hechos con cariño</p>
+    </div>
+    <address class="footer-address">
+      <span>Visítanos</span>
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Av.%20Carlos%20de%20la%20Madrid%20%2318%20Col.%20Santa%20Elena%2C%20Tecom%C3%A1n%2C%20Colima%2C%20Mexico%2C%2028134" target="_blank" rel="noopener noreferrer">
+        Av. Carlos de la Madrid #18, Col. Santa Elena<br>Tecomán, Colima, México, 28134
+      </a>
+    </address>
+    <div class="footer-socials">
+      <span>Síguenos</span>
+      <a href="https://www.instagram.com/tacos_carismma/" target="_blank" rel="noopener noreferrer" aria-label="Síguenos en Instagram">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle class="social-icon-dot" cx="17.5" cy="6.5" r="1"></circle></svg>
+        <span>Instagram</span>
+      </a>
+      <a href="https://www.facebook.com/profile.php?id=100093161237071" target="_blank" rel="noopener noreferrer" aria-label="Síguenos en Facebook">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="facebook-icon" d="M13.4 21v-8.2h2.8l.4-3.2h-3.2V7.5c0-.9.3-1.5 1.6-1.5h1.7V3.1c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.3H7.2v3.2H10V21h3.4Z"></path></svg>
+        <span>Facebook</span>
+      </a>
+    </div>
+  </footer>
+  <a class="whatsapp-float" href="https://wa.me/523133297441" target="_blank" rel="noopener noreferrer" aria-label="Escríbenos por WhatsApp">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16.04 3.2A12.72 12.72 0 0 0 5.16 22.5L3.4 28.8l6.45-1.69a12.8 12.8 0 0 0 6.18 1.58h.01c7.03 0 12.75-5.72 12.76-12.75a12.67 12.67 0 0 0-3.74-9.02 12.67 12.67 0 0 0-9.02-3.72Zm0 23.32h-.01a10.6 10.6 0 0 1-5.4-1.48l-.39-.23-3.83 1 1.02-3.73-.25-.39a10.57 10.57 0 0 1-1.62-5.65c0-5.83 4.75-10.58 10.59-10.58 2.82 0 5.47 1.1 7.46 3.1a10.5 10.5 0 0 1 3.09 7.47c0 5.83-4.75 10.58-10.59 10.58Zm5.81-7.93c-.32-.16-1.9-.94-2.19-1.05-.29-.1-.5-.16-.72.16-.21.32-.82 1.05-1 1.27-.18.21-.37.24-.69.08-.32-.16-1.35-.5-2.58-1.6-.95-.85-1.6-1.9-1.79-2.22-.18-.32-.02-.49.14-.65.14-.14.32-.37.48-.55.16-.18.21-.32.32-.53.1-.21.05-.4-.03-.56-.08-.16-.72-1.74-.98-2.38-.26-.62-.52-.54-.72-.55h-.61c-.21 0-.56.08-.85.4-.29.32-1.11 1.08-1.11 2.64s1.14 3.07 1.3 3.28c.16.22 2.24 3.42 5.43 4.8.76.33 1.35.53 1.81.68.76.24 1.45.21 2 .13.61-.09 1.9-.77 2.17-1.51.26-.74.26-1.37.18-1.51-.08-.13-.29-.21-.61-.37Z"/></svg>
+  </a>
+  <script type="module" src="/src/ts/publicOrder.ts"></script>
 </body>
 </html>

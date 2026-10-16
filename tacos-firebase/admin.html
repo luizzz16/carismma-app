@@ -1,68 +1,91 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Administrar Ventas</title>
+  <meta name="theme-color" content="#2f6b3a">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Acceso administrativo | Tacos Carismma</title>
   <link rel="stylesheet" href="/src/css/estilos-admin.css">
-  <link rel="icon" href="image/logoCaris.jpg" type="image/png">
+  <link rel="icon" href="/image/logoCaris.jpg" type="image/jpeg">
 </head>
-<body>
-  <header>
-    <h1>TACOS CARISMMA</h1>
-  </header>
+<body class="admin-page">
+  <div id="login-container" class="admin-access">
+    <section class="admin-access-info" aria-labelledby="access-title">
+      <a class="admin-brand" href="/menu.html" aria-label="Tacos Carismma, ir al sitio público">
+        <img src="/image/logoCaris.jpg" alt="">
+        <span>Tacos <strong>Carismma</strong></span>
+      </a>
+      <div class="admin-intro">
+        <p class="admin-eyebrow">Herramientas internas</p>
+        <h1 id="access-title">Consola de<br><span>administración</span></h1>
+        <p class="admin-description">Panel privado para consultar ventas y dar seguimiento a la operación de Tacos Carismma.</p>
+        <ul class="admin-features">
+          <li>Consulta de ventas por fecha</li>
+          <li>Resumen de ventas de fin de semana</li>
+          <li>Acceso exclusivo para administradores autorizados</li>
+        </ul>
+      </div>
+      <p class="admin-copyright">Tacos Carismma · Tecomán, Colima</p>
+    </section>
 
-  <!-- <nav>
-    <a href="menu.html">Menú</a>
-    <a href="index.html">Orden</a>
-    <a href="admin.html">Administrar</a>
-  </nav> -->
-
-    <nav id="menuNavegacion">
-    <a href="https://tacos-carissma.web.app/menu.html">Menú</a>
-    <a href="https://tacos-carissma.web.app/index.html">Orden</a>
-    <a href="https://tacos-carissma.web.app/admin.html">Administrar</a>
-  </nav>
-
-  <div id="login-container">
-  <button id="btnLogin">Iniciar sesión como administrador</button>
+    <section class="admin-login-panel" aria-labelledby="login-title">
+      <div class="admin-login-card">
+        <p class="admin-eyebrow">Acceso seguro</p>
+        <h2 id="login-title">Iniciar sesión</h2>
+        <p class="admin-login-copy">Identifícate con la cuenta Google autorizada para continuar al panel administrativo.</p>
+        <button id="btnLogin" class="google-login-button" type="button">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.74 7.18l7.64 5.93c4.46-4.12 7.14-10.2 7.14-17.58Z"></path><path fill="#FBBC05" d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.2A23.9 23.9 0 0 0 0 24c0 3.89.94 7.57 2.56 10.78l7.97-6.19Z"></path><path fill="#34A853" d="M24 48c6.47 0 11.92-2.13 15.89-5.87l-7.64-5.93c-2.12 1.42-4.84 2.26-8.25 2.26-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48Z"></path></svg>
+          <span>Continuar con Google</span>
+        </button>
+        <p id="login-status" class="login-status" role="status" aria-live="polite"></p>
+        <p class="admin-security-note">Autenticación cifrada · Solo cuentas autorizadas</p>
+        <a class="back-to-site" href="/menu.html">Volver al sitio público</a>
+      </div>
+    </section>
   </div>
 
   <div id="contenido-app" style="display: none;">
-  <main>
-    <section id="busquedaVentas">
-      <h2>Ventas por fecha</h2>
+    <header class="admin-dashboard-header">
+      <a class="admin-dashboard-brand" href="/menu.html" aria-label="Tacos Carismma, ir al sitio público">
+        <img src="/image/logoCaris.jpg" alt="">
+        <span>Tacos <strong>Carismma</strong></span>
+      </a>
+      <nav id="menuNavegacion" class="admin-dashboard-nav" aria-label="Navegación administrativa">
+        <a href="/ventas" aria-label="Ir a creación de órdenes">Crear órdenes</a>
+        <a href="/admin" aria-current="page">Ventas por fecha</a>
+        <a href="/menu.html">Sitio público</a>
+      </nav>
+    </header>
 
-      <div class="form-group">
-        <label for="selectorFecha">Selecciona una fecha:</label>
-        <input type="date" id="selectorFecha">
-      </div>
-
-      <button id="btnBuscarVenta">Buscar Ventas</button>
-    </section>
-
-    <section id="resultadoVentas">
-      <div id="resultadoVenta"></div>
-      <ol id="listaVentas"></ol>
-    </section>
-
-    <section id="graficoFinesSemana">
-      <h2>Gráfico de ventas por fin de semana</h2>
-      <div id="graficoMensaje" class="grafico-mensaje">Cargando gráfico de fines de semana...</div>
-      <div class="chart-scroll-wrapper">
-        <div class="chart-inner">
-          <canvas id="weekendSalesChart" width="800" height="360"></canvas>
+    <main class="admin-dashboard-main">
+      <section id="busquedaVentas" class="admin-dashboard-section">
+        <h2>Ventas por fecha</h2>
+        <div class="form-group">
+          <label for="selectorFecha">Selecciona una fecha:</label>
+          <input type="date" id="selectorFecha">
         </div>
-      </div>
-      <ol id="listaFinesSemana"></ol>
-    </section>
-  </main>
+        <button id="btnBuscarVenta">Buscar Ventas</button>
+        <div id="resultadoVentas">
+          <div id="resultadoVenta"></div>
+          <ol id="listaVentas"></ol>
+        </div>
+      </section>
+
+      <section id="graficoFinesSemana" class="admin-dashboard-section">
+        <h2>Gráfico de ventas por fin de semana</h2>
+        <div id="graficoMensaje" class="grafico-mensaje">Cargando gráfico de fines de semana...</div>
+        <div class="chart-scroll-wrapper">
+          <div class="chart-inner">
+            <canvas id="weekendSalesChart" width="800" height="360"></canvas>
+          </div>
+        </div>
+        <ol id="listaFinesSemana"></ol>
+      </section>
+    </main>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
   <script type="module" src="/src/ts/appAdm.ts"></script>
 </body>
 </html>

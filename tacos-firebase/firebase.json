@@ -1,6 +1,31 @@
 {
+  "firestore": {
+    "rules": "firestore.rules"
+  },
   "hosting": {
     "public": "dist",
+    "redirects": [
+      {
+        "source": "/admin.html",
+        "destination": "/admin",
+        "type": 301
+      },
+      {
+        "source": "/ventas.html",
+        "destination": "/ventas",
+        "type": 301
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/admin",
+        "destination": "/admin.html"
+      },
+      {
+        "source": "/ventas",
+        "destination": "/ventas.html"
+      }
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -8,4 +33,3 @@
     ]
   }
 }
-

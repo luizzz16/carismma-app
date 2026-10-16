@@ -1,6 +1,6 @@
 // gestorOrdenesFirestore.ts
 import {collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, query, orderBy, where, getDocs} from "firebase/firestore";
-import {db} from "./app";
+import {db} from "./firebase";
 import {Orden} from "./orden";
 import {SubOrden} from "./subOrden";
 

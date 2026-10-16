@@ -97,101 +97,111 @@
 // });
 
 import { getDoc, doc } from "firebase/firestore";
-import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
-import { auth, db, provider } from "./app";
+import { signInWithPopup, onAuthStateChanged } from "firebase/auth";
+import { auth, db, provider } from "./firebase";
 import { GestorVentas } from "./gestorVentas";
 import { Administrar } from "./administrar";
+
+const redirectAfterAdminLoginKey = "redirectAfterAdminLogin";
 
 async function validarAccesoAdministrador(email: string): Promise<boolean> {
   const docRef = doc(db, "usuariosAdministradores", email);
   const docSnap = await getDoc(docRef);
-  return docSnap.exists(); // Solo importa que exista
+  return docSnap.exists();
 }
 
-// Iniciar sesión con Google
-// async function login() {
+const loginContainer = document.getElementById("login-container");
+const contenidoApp = document.getElementById("contenido-app");
+const btnLogin = document.getElementById("btnLogin") as HTMLButtonElement | null;
+const loginStatus = document.getElementById("login-status");
+let appIniciada = false;
 
-//   const btnLogin = document.getElementById("btnLogin") as HTMLButtonElement;
-//   btnLogin.disabled = true;
+function mostrarEstadoLogin(mensaje: string, enlaceVentas = false): void {
+  if (!loginStatus) return;
+  loginStatus.replaceChildren(document.createTextNode(mensaje));
+  if (enlaceVentas) {
+    const link = document.createElement("a");
+    link.href = "/ventas";
+    link.textContent = " Ir al registro de ventas.";
+    loginStatus.append(link);
+  }
+}
 
-//   try {
-//     const result = await signInWithPopup(auth, provider);
-//     const email = result.user.email!;
-//     const autorizado = await validarAccesoAdministrador(email);
-
-//     if (!autorizado) {
-//       alert("Este correo no tiene acceso como administrador.");
-//       await signOut(auth);
-//       return;
-//     }
-//   } catch (error) {
-//     console.log("Error en login:", error);
-//   }
-// }
-
-async function login() {
-  const btnLogin = document.getElementById("btnLogin") as HTMLButtonElement;
+async function login(): Promise<void> {
+  if (!btnLogin) return;
   btnLogin.disabled = true;
+  mostrarEstadoLogin("Abriendo el inicio de sesión de Google...");
+  sessionStorage.setItem(redirectAfterAdminLoginKey, "true");
 
   try {
-    const result = await signInWithPopup(auth, provider);
-    const email = result.user.email!;
-    const autorizado = await validarAccesoAdministrador(email);
-
-    if (!autorizado) {
-      alert("Este correo no tiene acceso como administrador.");
-      await signOut(auth);
-      btnLogin.disabled = false; // Reactivar botón si no está autorizado
-      return;
-    }
-
-    // Si está autorizado, no se necesita volver a activar el botón
+    await signInWithPopup(auth, provider);
   } catch (error) {
-    console.log("Error en login:", error);
-    btnLogin.disabled = false; // Reactivar botón en caso de error
+    sessionStorage.removeItem(redirectAfterAdminLoginKey);
+    console.error("Error al iniciar sesión en administración:", error);
+    mostrarEstadoLogin("No se pudo iniciar sesión. Inténtalo nuevamente.");
+    btnLogin.disabled = false;
   }
 }
 
-onAuthStateChanged(auth, async (user) => {
-  const loginContainer = document.getElementById("login-container")!;
-  const contenidoApp = document.getElementById("contenido-app")!;
-
-  if (user) {
-    const autorizado = await validarAccesoAdministrador(user.email!);
-    if (autorizado) {
-      loginContainer.style.display = "none";
-      contenidoApp.style.display = "block";
-      iniciarApp();
-    } else {
-      alert("No tienes permisos de administrador.");
-      await signOut(auth);
-
-      // Aquí ocultamos todo y salimos para no ejecutar nada más
-      loginContainer.style.display = "flex";
-      contenidoApp.style.display = "none";
-      return;  // Detenemos ejecución
-    }
-  } else {
-    loginContainer.style.display = "flex";
-    contenidoApp.style.display = "none";
-  }
-});
-
-
-// Inicializa la lógica del panel de administrador
-function iniciarApp() {
+function iniciarApp(): void {
   const gestor = new GestorVentas();
   new Administrar(gestor);
 }
 
-// Evento del botón
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("btnLogin")?.addEventListener("click", login);
+if (!loginContainer || !contenidoApp || !btnLogin || !loginStatus) {
+  throw new Error("No se encontraron los elementos necesarios para el acceso administrativo.");
+}
+
+btnLogin.addEventListener("click", () => { void login(); });
+
+onAuthStateChanged(auth, async (user) => {
+  contenidoApp.style.display = "none";
+  loginContainer.style.display = "grid";
+  btnLogin.disabled = false;
+
+  if (!user) {
+    sessionStorage.removeItem(redirectAfterAdminLoginKey);
+    mostrarEstadoLogin("");
+    return;
+  }
+
+  if (!user.email) {
+    mostrarEstadoLogin("La cuenta de Google no proporcionó un correo para validar permisos.");
+    return;
+  }
+
+  btnLogin.disabled = true;
+  mostrarEstadoLogin("Verificando permisos de administración...");
+
+  try {
+    const autorizado = await validarAccesoAdministrador(user.email);
+    if (!autorizado) {
+      sessionStorage.removeItem(redirectAfterAdminLoginKey);
+      mostrarEstadoLogin(
+        `La cuenta ${user.email} no tiene permisos de administrador.`,
+        true
+      );
+      btnLogin.disabled = false;
+      return;
+    }
+
+    if (sessionStorage.getItem(redirectAfterAdminLoginKey) === "true") {
+      sessionStorage.removeItem(redirectAfterAdminLoginKey);
+      window.location.replace("/ventas");
+      return;
+    }
+
+    loginContainer.style.display = "none";
+    contenidoApp.style.display = "block";
+    mostrarEstadoLogin("");
+    if (!appIniciada) {
+      iniciarApp();
+      appIniciada = true;
+    }
+  } catch (error) {
+    sessionStorage.removeItem(redirectAfterAdminLoginKey);
+    console.error("Error al verificar el acceso administrativo:", error);
+    mostrarEstadoLogin("No se pudieron verificar tus permisos. Inténtalo nuevamente.");
+    btnLogin.disabled = false;
+  }
 });
-
-
-
-
-
-
-

@@ -29,6 +29,10 @@ export class Orden {
     return this._fecha;
   }
 
+  get ordenCreacionTiempo() {
+    return this._ordenCreacionTiempo;
+  }
+
   get subOrdenes() {
     return this._subOrdenes;
   }
@@ -82,10 +86,16 @@ export class Orden {
   const tieneNombre = this.nombreCliente && this.nombreCliente.trim() !== '';
 
   const tipo = tieneNombre
-    ? `Orden ${this.noMesa} Cliente: ${this.nombreCliente!.trim()}`
+    ? this.noMesa === undefined
+      ? `Orden Cliente: ${this.nombreCliente!.trim()}`
+      : `Orden ${this.noMesa} Cliente: ${this.nombreCliente!.trim()}`
     : `Mesa: ${this.noMesa}`;
 
-  return ` ${tipo}, Fecha: ${this.formatearFecha(fecha)} - Total: $${this.getTotal()}`;
+  return ` ${tipo}, ${this.formatoDetallesOrden(fecha)}`;
+}
+
+formatoDetallesOrden(fecha: Date): string {
+  return `Fecha: ${this.formatearFecha(fecha)} - Total: $${this.getTotal()}`;
 }
 
 
@@ -185,7 +195,8 @@ export class Orden {
 
     const subOrdenesJson = obj._subOrdenes;
 
-    orden._ordenCreacionTiempo = obj._ordenCreacionTiempo ?? Date.now();
+    const tiempoCreacion = Number(obj._ordenCreacionTiempo);
+    orden._ordenCreacionTiempo = Number.isFinite(tiempoCreacion) ? tiempoCreacion : fecha.getTime();
 
     orden.subOrdenes = Array.isArray(subOrdenesJson)
       ? subOrdenesJson.map((s: any) => SubOrden.fromJSON(s))
